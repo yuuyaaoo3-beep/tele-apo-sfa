@@ -9,23 +9,24 @@
   :root {
     --c-bg: #ffffff; --c-bg2: #f5f5f5; --c-bg3: #ebebeb;
     --c-text: #1a1a1a; --c-text2: #555; --c-text3: #999;
-    --c-border: #ddd; --c-border2: #bbb;
+    --c-border: #ddd;
     --c-blue: #1a73e8; --c-blue-bg: #e8f0fe; --c-blue-text: #1a56c4;
     --c-green: #1e8e3e; --c-green-bg: #e6f4ea;
     --c-red: #c5221f; --c-red-bg: #fce8e6;
     --c-yellow-bg: #fef7e0; --c-yellow-text: #b06000;
+    --c-purple-bg: #f3e8fd; --c-purple-text: #5b2d9e;
     --radius: 8px; --radius-lg: 12px;
   }
   body { font-family: 'Hiragino Sans','Noto Sans JP',sans-serif; background: var(--c-bg2); color: var(--c-text); font-size: 14px; line-height: 1.6; min-height: 100vh; }
   .nav { background: var(--c-bg); border-bottom: 1px solid var(--c-border); position: sticky; top: 0; z-index: 100; }
-  .nav-inner { max-width: 1200px; margin: 0 auto; padding: 0 16px; display: flex; justify-content: space-between; align-items: center; height: 56px; }
+  .nav-inner { max-width: 1280px; margin: 0 auto; padding: 0 16px; display: flex; justify-content: space-between; align-items: center; height: 56px; }
   .nav-logo { font-size: 16px; font-weight: 700; color: var(--c-blue); }
   .nav-tabs { display: flex; gap: 2px; }
-  .nav-tab { padding: 8px 14px; font-size: 13px; border: none; background: transparent; cursor: pointer; border-radius: var(--radius); color: var(--c-text2); font-family: inherit; }
+  .nav-tab { padding: 8px 13px; font-size: 13px; border: none; background: transparent; cursor: pointer; border-radius: var(--radius); color: var(--c-text2); font-family: inherit; }
   .nav-tab:hover { background: var(--c-bg2); }
   .nav-tab.active { background: var(--c-blue-bg); color: var(--c-blue-text); font-weight: 600; }
   .nav-user { font-size: 12px; color: var(--c-text2); display: flex; align-items: center; gap: 12px; }
-  #app { max-width: 1200px; margin: 0 auto; padding: 0 16px 60px; }
+  #app { max-width: 1280px; margin: 0 auto; padding: 0 16px 60px; }
   button { font-family: inherit; font-size: 13px; border-radius: var(--radius); border: 1px solid var(--c-border); background: var(--c-bg); color: var(--c-text); cursor: pointer; padding: 7px 14px; transition: background .15s; }
   button:hover { background: var(--c-bg2); }
   button.primary { background: var(--c-blue); color: #fff; border-color: var(--c-blue); }
@@ -33,22 +34,23 @@
   button.danger { color: var(--c-red); border-color: transparent; background: transparent; }
   button.danger:hover { background: var(--c-red-bg); }
   button.sm { padding: 4px 10px; font-size: 12px; }
+  button.ghost { border-color: transparent; background: transparent; }
   input, select, textarea { font-family: inherit; font-size: 13px; border: 1px solid var(--c-border); border-radius: var(--radius); padding: 8px 10px; width: 100%; background: var(--c-bg); color: var(--c-text); }
   input:focus, select:focus, textarea:focus { outline: none; border-color: var(--c-blue); box-shadow: 0 0 0 3px rgba(26,115,232,.12); }
   label { font-size: 12px; color: var(--c-text2); display: block; margin-bottom: 4px; }
-  .fg { display: grid; grid-template-columns: repeat(auto-fit,minmax(200px,1fr)); gap: 12px; }
+  .fg2 { display: grid; grid-template-columns: repeat(auto-fit,minmax(200px,1fr)); gap: 12px; }
   .fa { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
   .card { background: var(--c-bg); border: 1px solid var(--c-border); border-radius: var(--radius-lg); padding: 20px; margin-bottom: 16px; }
   .tw { overflow-x: auto; border-radius: var(--radius-lg); border: 1px solid var(--c-border); }
   table { width: 100%; border-collapse: collapse; background: var(--c-bg); }
   th { text-align: left; padding: 10px 14px; font-size: 12px; font-weight: 600; color: var(--c-text2); border-bottom: 1px solid var(--c-border); background: var(--c-bg2); white-space: nowrap; }
-  td { padding: 11px 14px; border-bottom: 1px solid var(--c-border); font-size: 13px; }
+  td { padding: 10px 14px; border-bottom: 1px solid var(--c-border); font-size: 13px; vertical-align: middle; }
   tr:last-child td { border-bottom: none; }
   tr.row:hover td { background: var(--c-bg2); cursor: pointer; }
   .badge { display: inline-block; padding: 3px 9px; border-radius: 20px; font-size: 11px; font-weight: 500; white-space: nowrap; }
   .ph { display: flex; justify-content: space-between; align-items: center; margin: 24px 0 16px; }
   .pt { font-size: 20px; font-weight: 700; }
-  .filter-bar { background: var(--c-bg); border: 1px solid var(--c-border); border-radius: var(--radius-lg); padding: 14px 16px; margin-bottom: 16px; display: grid; grid-template-columns: repeat(auto-fit,minmax(155px,1fr)); gap: 10px; }
+  .filter-bar { background: var(--c-bg); border: 1px solid var(--c-border); border-radius: var(--radius-lg); padding: 14px 16px; margin-bottom: 16px; display: grid; grid-template-columns: repeat(auto-fit,minmax(150px,1fr)); gap: 10px; }
   .stat-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(140px,1fr)); gap: 14px; margin-bottom: 20px; }
   .stat-card { background: var(--c-bg); border: 1px solid var(--c-border); border-radius: var(--radius-lg); padding: 16px; }
   .stat-label { font-size: 12px; color: var(--c-text2); margin-bottom: 6px; }
@@ -56,44 +58,42 @@
   .ptabs { display: flex; gap: 4px; }
   .ptab { padding: 6px 14px; font-size: 12px; border-radius: 20px; border: 1px solid var(--c-border); background: transparent; cursor: pointer; font-family: inherit; }
   .ptab.active { background: var(--c-blue); color: #fff; border-color: var(--c-blue); }
-  .s-未架電{background:#f1f0e8;color:#444}
-  .s-架電済{background:#e8f0fe;color:#174ea6}
-  .s-架電NG{background:#fce8e6;color:#a50e0e}
-  .s-ナーチャリング{background:#fef7e0;color:#b06000}
-  .s-アポ獲得{background:#e6f4ea;color:#137333}
-  .s-初回商談{background:#e0f7f4;color:#0d5f54}
-  .s-提案中{background:#f3e8fd;color:#5b2d9e}
-  .s-検討中{background:#fce8f3;color:#8d1f5e}
-  .s-受注{background:#c0dd97;color:#173404}
-  .s-失注{background:#e8e8e8;color:#444}
+  .s-未架電{background:#f1f0e8;color:#444} .s-架電済{background:#e8f0fe;color:#174ea6}
+  .s-架電NG{background:#fce8e6;color:#a50e0e} .s-ナーチャリング{background:#fef7e0;color:#b06000}
+  .s-アポ獲得{background:#e6f4ea;color:#137333} .s-初回商談{background:#e0f7f4;color:#0d5f54}
+  .s-提案中{background:#f3e8fd;color:#5b2d9e} .s-検討中{background:#fce8f3;color:#8d1f5e}
+  .s-受注{background:#c0dd97;color:#173404} .s-失注{background:#e8e8e8;color:#444}
   .login-wrap { min-height:100vh; display:flex; align-items:center; justify-content:center; }
   .login-card { background:var(--c-bg); border:1px solid var(--c-border); border-radius:var(--radius-lg); padding:40px; width:100%; max-width:400px; box-shadow:0 2px 12px rgba(0,0,0,.08); }
   .login-title { font-size:22px; font-weight:700; text-align:center; margin-bottom:8px; color:var(--c-blue); }
   .login-sub { font-size:13px; color:var(--c-text2); text-align:center; margin-bottom:28px; }
-  .err { background:var(--c-red-bg); color:var(--c-red); padding:10px 14px; border-radius:var(--radius); font-size:13px; margin-bottom:12px; }
-  .pos { color:var(--c-green); font-weight:600; }
-  .neg { color:var(--c-red); font-weight:600; }
+  .err-box { background:var(--c-red-bg); color:var(--c-red); padding:10px 14px; border-radius:var(--radius); font-size:13px; margin-bottom:12px; }
+  .pos { color:var(--c-green); font-weight:600; } .neg { color:var(--c-red); font-weight:600; }
   .loading { text-align:center; padding:60px; color:var(--c-text3); font-size:15px; }
   .toast { position:fixed; bottom:24px; right:24px; background:#323232; color:#fff; padding:12px 20px; border-radius:var(--radius); font-size:13px; z-index:9999; animation:fi .2s; }
   @keyframes fi { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
   .call-card { background:var(--c-bg2); border-radius:var(--radius); padding:14px; margin-bottom:10px; }
   .call-meta { display:flex; gap:10px; align-items:center; margin-bottom:8px; flex-wrap:wrap; }
-  .call-dt { font-size:13px; font-weight:600; }
-  .call-user { font-size:12px; color:var(--c-text2); }
-  .call-memo { font-size:13px; white-space:pre-wrap; margin-bottom:4px; }
-  .call-next { font-size:12px; color:var(--c-text2); }
-  .dh { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:16px; }
-  .dc { font-size:22px; font-weight:700; margin-bottom:4px; }
-  .da { font-size:13px; color:var(--c-text2); }
-  .ig { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:10px 24px; margin-top:14px; padding-top:14px; border-top:1px solid var(--c-border); }
-  .ir { display:flex; gap:8px; font-size:13px; }
-  .il { color:var(--c-text2); min-width:110px; }
+  .section-title { font-size:15px; font-weight:600; margin-bottom:12px; display:flex; justify-content:space-between; align-items:center; }
+  .tabs { display:flex; border-bottom:1px solid var(--c-border); margin-bottom:16px; gap:0; }
+  .tab { padding:10px 18px; font-size:13px; border:none; background:transparent; cursor:pointer; font-family:inherit; color:var(--c-text2); border-bottom:2px solid transparent; margin-bottom:-1px; }
+  .tab.active { color:var(--c-blue); border-bottom-color:var(--c-blue); font-weight:600; }
+  .contact-card { background:var(--c-bg2); border-radius:var(--radius); padding:14px; margin-bottom:10px; }
+  .contact-header { display:flex; justify-content:space-between; align-items:flex-start; }
+  .contact-name { font-weight:600; font-size:14px; }
+  .contact-sub { font-size:12px; color:var(--c-text2); margin-top:2px; }
+  .info-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:8px 24px; }
+  .info-row { display:flex; gap:8px; font-size:13px; }
+  .info-label { color:var(--c-text2); min-width:100px; flex-shrink:0; }
   .anote { background:var(--c-yellow-bg); color:var(--c-yellow-text); padding:10px 14px; border-radius:var(--radius); font-size:12px; margin-bottom:14px; }
+  .user-switcher { display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-bottom:16px; }
+  .user-chip { padding:6px 14px; border-radius:20px; font-size:12px; border:1px solid var(--c-border); cursor:pointer; background:var(--c-bg); font-family:inherit; }
+  .user-chip.active { background:var(--c-blue); color:#fff; border-color:var(--c-blue); }
+  .assign-select { font-size:12px; padding:4px 8px; border-radius:var(--radius); border:1px solid var(--c-border); background:var(--c-bg); font-family:inherit; cursor:pointer; }
 </style>
 </head>
 <body>
 <div id="root"><div class="loading">読み込み中...</div></div>
-
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getFirestore, collection, doc, getDocs, addDoc, setDoc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
@@ -108,39 +108,52 @@ const firebaseConfig = {
 };
 
 const fbApp = initializeApp(firebaseConfig);
-const db    = getFirestore(fbApp);
-const col   = n => collection(db, n);
-const ref   = (n,id) => doc(db, n, id);
+const db = getFirestore(fbApp);
+const col = n => collection(db, n);
+const ref = (n, id) => doc(db, n, id);
 
 const CALL_RESULTS = ['不通','受付NG','担当者不在','有効応答','担当者NG','資料送付','アポ獲得','ミスディレクション'];
-const STATUSES     = ['未架電','架電済','架電NG','ナーチャリング','アポ獲得','初回商談','提案中','検討中','受注','失注'];
+const STATUSES = ['未架電','架電済','架電NG','ナーチャリング','アポ獲得','初回商談','提案中','検討中','受注','失注'];
 
-let st = { loaded:false, user:null, users:[], customers:[], calls:[], view:'dashboard', selId:null };
-let dashPeriod='day', cf={search:'',status:'',pref:'',minE:'',maxE:'',res:''};
+// State
+let st = { loaded:false, user:null, users:[], customers:[], contacts:[], calls:[], view:'dashboard', selId:null };
+let dashPeriod = 'day';
+let cf = { search:'', status:'', pref:'', minE:'', maxE:'', res:'', assignee:'' };
 let showAddC=false, editCid=null, showCallF=false, editUid=null, showAddU=false;
+let showAddContact=false, editContactId=null;
 let importPrev=[], importTxt='';
+let detailTab = 'info'; // info | contacts | calls
+let assignViewUid = ''; // 割り当てリスト表示ユーザー
+
+const ts = () => new Date().toISOString();
+const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 
 async function init() {
-  const [us,cs,hs] = await Promise.all([getDocs(col('users')),getDocs(col('customers')),getDocs(col('callHistory'))]);
+  const [us,cs,cts,hs] = await Promise.all([
+    getDocs(col('users')), getDocs(col('customers')),
+    getDocs(col('contacts')), getDocs(col('callHistory'))
+  ]);
   st.users     = us.docs.map(d=>({id:d.id,...d.data()}));
   st.customers = cs.docs.map(d=>({id:d.id,...d.data()}));
+  st.contacts  = cts.docs.map(d=>({id:d.id,...d.data()}));
   st.calls     = hs.docs.map(d=>({id:d.id,...d.data()}));
   if (st.users.length === 0) {
     await setDoc(ref('users','admin_init'),{name:'管理者',email:'yuuyaaoo3@gmail.com',role:'admin',callTarget:50,apoTarget:5,createdAt:ts()});
     st.users = [{id:'admin_init',name:'管理者',email:'yuuyaaoo3@gmail.com',role:'admin',callTarget:50,apoTarget:5}];
   }
-  st.loaded=true; render();
+  st.loaded = true; render();
 }
 
 async function reload() {
-  const [us,cs,hs] = await Promise.all([getDocs(col('users')),getDocs(col('customers')),getDocs(col('callHistory'))]);
+  const [us,cs,cts,hs] = await Promise.all([
+    getDocs(col('users')), getDocs(col('customers')),
+    getDocs(col('contacts')), getDocs(col('callHistory'))
+  ]);
   st.users=us.docs.map(d=>({id:d.id,...d.data()}));
   st.customers=cs.docs.map(d=>({id:d.id,...d.data()}));
+  st.contacts=cts.docs.map(d=>({id:d.id,...d.data()}));
   st.calls=hs.docs.map(d=>({id:d.id,...d.data()}));
 }
-
-const ts = ()=>new Date().toISOString();
-const esc = s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 
 function toast(msg) {
   const t=document.createElement('div'); t.className='toast'; t.textContent=msg;
@@ -162,40 +175,40 @@ function parseCSV(text) {
 
 // ========== RENDER ==========
 function render() {
-  const root=document.getElementById('root');
+  const root = document.getElementById('root');
   if(!st.loaded){root.innerHTML='<div class="loading">読み込み中...</div>';return;}
   if(!st.user){root.innerHTML=rLogin();bLogin();return;}
-  root.innerHTML=rApp();bApp();
+  root.innerHTML=rApp(); bApp();
 }
 
 // ---- Login ----
-function rLogin(){
-  return`<div class="login-wrap"><div class="login-card">
+function rLogin() {
+  return `<div class="login-wrap"><div class="login-card">
   <div class="login-title">テレアポSFA</div>
   <div class="login-sub">登録済みのメールアドレスでログイン</div>
-  <div id="lerr" style="display:none" class="err"></div>
+  <div id="lerr" style="display:none" class="err-box"></div>
   <div style="margin-bottom:14px"><label>メールアドレス</label><input type="email" id="lemail" placeholder="example@gmail.com"></div>
   <button class="primary" id="lbtn" style="width:100%;padding:10px;font-size:14px">ログイン</button>
   </div></div>`;
 }
-function bLogin(){
-  const fn=()=>{
-    const email=document.getElementById('lemail').value.trim().toLowerCase();
-    const errEl=document.getElementById('lerr');
+function bLogin() {
+  const fn = () => {
+    const email = document.getElementById('lemail').value.trim().toLowerCase();
+    const errEl = document.getElementById('lerr');
     if(!email){errEl.textContent='メールアドレスを入力してください';errEl.style.display='block';return;}
-    const u=st.users.find(u=>(u.email||'').toLowerCase()===email);
+    const u = st.users.find(u=>(u.email||'').toLowerCase()===email);
     if(!u){errEl.textContent='このメールアドレスは登録されていません';errEl.style.display='block';return;}
-    st.user=u; st.view='dashboard'; render();
+    st.user=u; st.view='dashboard'; assignViewUid=u.id; render();
   };
   document.getElementById('lbtn').onclick=fn;
   document.getElementById('lemail').onkeydown=e=>{if(e.key==='Enter')fn();};
 }
 
-// ---- App shell ----
-function rApp(){
-  const u=st.user;
-  const views={dashboard:'ダッシュボード',customers:'顧客リスト',import:'CSVインポート',settings:'設定'};
-  return`<div class="nav"><div class="nav-inner">
+// ---- App Shell ----
+function rApp() {
+  const u = st.user;
+  const views = {dashboard:'ダッシュボード', customers:'顧客リスト', mylist:'マイリスト', import:'CSVインポート', settings:'設定'};
+  return `<div class="nav"><div class="nav-inner">
   <div class="nav-logo">テレアポSFA</div>
   <div class="nav-tabs">${Object.entries(views).map(([v,l])=>`<button class="nav-tab${st.view===v?' active':''}" data-v="${v}">${l}</button>`).join('')}</div>
   <div class="nav-user"><span>${esc(u.name)}${u.role==='admin'?' (管理者)':''}</span><button id="logout">ログアウト</button></div>
@@ -204,68 +217,72 @@ function rApp(){
   ${st.view==='dashboard'?rDash():''}
   ${st.view==='customers'?rCustList():''}
   ${st.view==='detail'?rDetail():''}
+  ${st.view==='mylist'?rMyList():''}
   ${st.view==='import'?rImport():''}
   ${st.view==='settings'?rSettings():''}
   </div>`;
 }
-function bApp(){
+function bApp() {
   document.querySelectorAll('.nav-tab').forEach(b=>b.onclick=()=>{st.view=b.dataset.v;render();});
   document.getElementById('logout').onclick=()=>{st.user=null;render();};
   if(st.view==='dashboard')bDash();
   if(st.view==='customers')bCustList();
   if(st.view==='detail')bDetail();
+  if(st.view==='mylist')bMyList();
   if(st.view==='import')bImport();
   if(st.view==='settings')bSettings();
 }
 
 // ---- Dashboard ----
-function rDash(){
-  const now=new Date(),s=new Date();
+function rDash() {
+  const now=new Date(), s=new Date();
   if(dashPeriod==='day')s.setHours(0,0,0,0);
   else if(dashPeriod==='week')s.setDate(now.getDate()-7);
   else s.setMonth(now.getMonth()-1);
-  const fcalls=st.calls.filter(c=>new Date(c.calledAt)>=s);
-  const sc={}; STATUSES.forEach(x=>sc[x]=0); st.customers.forEach(c=>{const x=c.status||'未架電';if(sc[x]!==undefined)sc[x]++;});
-  const pLabel={day:'本日',week:'週間',month:'月間'};
+  const fc=st.calls.filter(c=>new Date(c.calledAt)>=s);
+  const sc={}; STATUSES.forEach(x=>sc[x]=0);
+  st.customers.forEach(c=>{const x=c.status||'未架電';if(sc[x]!==undefined)sc[x]++;});
+  const pL={day:'本日',week:'週間',month:'月間'};
   const rows=st.users.map(u=>{
-    const uc=fcalls.filter(c=>c.userId===u.id);
+    const uc=fc.filter(c=>c.userId===u.id);
     const ap=uc.filter(c=>c.result==='アポ獲得').length;
     const cd=uc.length-(u.callTarget||0), ad=ap-(u.apoTarget||0);
-    return`<tr><td>${esc(u.name)}</td><td style="text-align:right">${uc.length}</td>
-    <td style="text-align:right;color:var(--c-text2)">${u.callTarget||0}</td>
+    return `<tr><td>${esc(u.name)}</td>
+    <td style="text-align:right">${uc.length}</td><td style="text-align:right;color:var(--c-text2)">${u.callTarget||0}</td>
     <td style="text-align:right" class="${cd>=0?'pos':'neg'}">${cd>=0?'+':''}${cd}</td>
-    <td style="text-align:right">${ap}</td>
-    <td style="text-align:right;color:var(--c-text2)">${u.apoTarget||0}</td>
+    <td style="text-align:right">${ap}</td><td style="text-align:right;color:var(--c-text2)">${u.apoTarget||0}</td>
     <td style="text-align:right" class="${ad>=0?'pos':'neg'}">${ad>=0?'+':''}${ad}</td></tr>`;
   }).join('');
-  return`<div class="ph"><div class="pt">ダッシュボード</div>
-  <div class="ptabs">${['day','week','month'].map(p=>`<button class="ptab${dashPeriod===p?' active':''}" data-p="${p}">${pLabel[p]}</button>`).join('')}</div></div>
+  return `<div class="ph"><div class="pt">ダッシュボード</div>
+  <div class="ptabs">${['day','week','month'].map(p=>`<button class="ptab${dashPeriod===p?' active':''}" data-p="${p}">${pL[p]}</button>`).join('')}</div></div>
   <div class="stat-grid">
     <div class="stat-card"><div class="stat-label">総顧客数</div><div class="stat-value">${st.customers.length.toLocaleString()}</div></div>
-    <div class="stat-card"><div class="stat-label">期間内架電数</div><div class="stat-value">${fcalls.length}</div></div>
+    <div class="stat-card"><div class="stat-label">期間内架電数</div><div class="stat-value">${fc.length}</div></div>
     <div class="stat-card"><div class="stat-label">アポ獲得（累計）</div><div class="stat-value">${st.customers.filter(c=>c.status==='アポ獲得').length}</div></div>
     <div class="stat-card"><div class="stat-label">受注（累計）</div><div class="stat-value">${st.customers.filter(c=>c.status==='受注').length}</div></div>
   </div>
-  <div class="card"><div style="font-size:15px;font-weight:600;margin-bottom:14px">ユーザー別実績（${pLabel[dashPeriod]}）</div>
+  <div class="card"><div class="section-title">ユーザー別実績（${pL[dashPeriod]}）</div>
   <div class="tw"><table><thead><tr>
     <th>ユーザー</th><th style="text-align:right">架電数</th><th style="text-align:right">架電目標</th><th style="text-align:right">差分</th>
     <th style="text-align:right">アポ獲得</th><th style="text-align:right">アポ目標</th><th style="text-align:right">差分</th>
   </tr></thead><tbody>${rows}</tbody></table></div></div>
-  <div class="card"><div style="font-size:15px;font-weight:600;margin-bottom:14px">ステータス別顧客数</div>
+  <div class="card"><div class="section-title">ステータス別顧客数</div>
   <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px">
     ${STATUSES.map(s=>`<div style="padding:12px;border-radius:8px" class="s-${s}"><div style="font-size:11px;margin-bottom:6px">${s}</div><div style="font-size:22px;font-weight:700">${sc[s]}</div></div>`).join('')}
   </div></div>`;
 }
-function bDash(){ document.querySelectorAll('.ptab').forEach(b=>b.onclick=()=>{dashPeriod=b.dataset.p;render();}); }
+function bDash(){document.querySelectorAll('.ptab').forEach(b=>b.onclick=()=>{dashPeriod=b.dataset.p;render();});}
 
 // ---- Customer List ----
-function rCustList(){
-  const fil=filteredC();
-  return`<div class="ph"><div class="pt">顧客リスト（${fil.length}件）</div><button class="primary" id="add-c">+ 新規追加</button></div>
+function rCustList() {
+  const fil = filteredC();
+  const userOpts = `<option value="">担当者（全て）</option>${st.users.map(u=>`<option value="${u.id}"${cf.assignee===u.id?' selected':''}>${esc(u.name)}</option>`).join('')}`;
+  return `<div class="ph"><div class="pt">顧客リスト（${fil.length}件）</div><button class="primary" id="add-c">+ 新規追加</button></div>
   <div class="filter-bar">
-    <input id="fs" placeholder="会社名・担当者・電話番号" value="${esc(cf.search)}">
+    <input id="fs" placeholder="会社名・電話番号" value="${esc(cf.search)}">
     <select id="fst"><option value="">ステータス（全て）</option>${STATUSES.map(s=>`<option value="${s}"${cf.status===s?' selected':''}>${s}</option>`).join('')}</select>
     <input id="fp" placeholder="都道府県" value="${esc(cf.pref)}">
+    <select id="fa">${userOpts}</select>
     <select id="fr"><option value="">架電結果（全て）</option>${CALL_RESULTS.map(r=>`<option value="${r}"${cf.res===r?' selected':''}>${r}</option>`).join('')}</select>
     <input id="fmn" type="number" placeholder="従業員数（最小）" value="${cf.minE}">
     <input id="fmx" type="number" placeholder="従業員数（最大）" value="${cf.maxE}">
@@ -273,45 +290,62 @@ function rCustList(){
   </div>
   ${showAddC?rCustForm(null):''}
   <div class="tw"><table><thead><tr>
-    <th>会社名</th><th>担当者</th><th>電話番号</th><th>地域</th><th style="text-align:right">従業員数</th><th>ステータス</th>
+    <th>会社名</th><th>電話番号</th><th>地域</th><th style="text-align:right">従業員数</th><th>ステータス</th><th>担当者</th>
   </tr></thead><tbody>
   ${fil.length===0?`<tr><td colspan="6" style="text-align:center;color:var(--c-text3);padding:32px">顧客データがありません</td></tr>`:
-  fil.map(c=>`<tr class="row" data-id="${c.id}">
+  fil.map(c=>{
+    const assignee = st.users.find(u=>u.id===c.assigneeId);
+    return `<tr class="row" data-id="${c.id}">
     <td><strong>${esc(c.companyName)}</strong></td>
-    <td>${esc(c.contactName||'-')}</td>
     <td>${esc(c.companyPhone||'-')}</td>
     <td style="color:var(--c-text2)">${esc([c.prefecture,c.city].filter(Boolean).join(' ')||'-')}</td>
     <td style="text-align:right">${c.employees?parseInt(c.employees).toLocaleString()+' 名':'-'}</td>
     <td><span class="badge s-${c.status||'未架電'}">${c.status||'未架電'}</span></td>
-  </tr>`).join('')}
+    <td><select class="assign-select" data-cid="${c.id}" onclick="event.stopPropagation()">
+      <option value="">未割り当て</option>
+      ${st.users.map(u=>`<option value="${u.id}"${c.assigneeId===u.id?' selected':''}>${esc(u.name)}</option>`).join('')}
+    </select></td>
+  </tr>`;}).join('')}
   </tbody></table></div>`;
 }
-function filteredC(){
+function filteredC() {
   return st.customers.filter(c=>{
     const s=cf.search.toLowerCase();
-    if(s&&!((c.companyName||'').toLowerCase().includes(s)||(c.contactName||'').toLowerCase().includes(s)||(c.companyPhone||'').includes(cf.search)||(c.contactPhone||'').includes(cf.search)))return false;
+    if(s&&!((c.companyName||'').toLowerCase().includes(s)||(c.companyPhone||'').includes(cf.search)))return false;
     if(cf.status&&(c.status||'未架電')!==cf.status)return false;
     if(cf.pref&&!(c.prefecture||'').includes(cf.pref))return false;
     if(cf.minE&&(parseInt(c.employees)||0)<parseInt(cf.minE))return false;
     if(cf.maxE&&(parseInt(c.employees)||0)>parseInt(cf.maxE))return false;
     if(cf.res){const calls=st.calls.filter(h=>h.customerId===c.id);if(!calls.some(h=>h.result===cf.res))return false;}
+    if(cf.assignee&&c.assigneeId!==cf.assignee)return false;
     return true;
   });
 }
-function bCustList(){
-  const bind=(id,key)=>{const el=document.getElementById(id);if(el)el.addEventListener('input',()=>{cf[key]=el.value;render();});el?.addEventListener('change',()=>{cf[key]=el.value;render();});};
-  bind('fs','search');bind('fst','status');bind('fp','pref');bind('fr','res');bind('fmn','minE');bind('fmx','maxE');
-  document.getElementById('fclr').onclick=()=>{cf={search:'',status:'',pref:'',minE:'',maxE:'',res:''};render();};
+function bCustList() {
+  const bind=(id,key)=>{const el=document.getElementById(id);if(!el)return;el.addEventListener('input',()=>{cf[key]=el.value;render();});el.addEventListener('change',()=>{cf[key]=el.value;render();});};
+  bind('fs','search');bind('fst','status');bind('fp','pref');bind('fr','res');bind('fmn','minE');bind('fmx','maxE');bind('fa','assignee');
+  document.getElementById('fclr').onclick=()=>{cf={search:'',status:'',pref:'',minE:'',maxE:'',res:'',assignee:''};render();};
   document.getElementById('add-c').onclick=()=>{showAddC=!showAddC;render();};
-  document.querySelectorAll('tr.row[data-id]').forEach(tr=>tr.onclick=()=>{st.selId=tr.dataset.id;st.view='detail';showCallF=false;editCid=null;render();});
+  document.querySelectorAll('tr.row[data-id]').forEach(tr=>tr.onclick=()=>{st.selId=tr.dataset.id;st.view='detail';detailTab='info';showCallF=false;editCid=null;showAddContact=false;editContactId=null;render();});
+  // 担当者割り当てセレクト
+  document.querySelectorAll('.assign-select').forEach(sel=>{
+    sel.onchange=async e=>{
+      const cid=sel.dataset.cid;
+      const val=e.target.value;
+      await updateDoc(ref('customers',cid),{assigneeId:val});
+      const c=st.customers.find(x=>x.id===cid);
+      if(c)c.assigneeId=val;
+      toast('担当者を更新しました');
+    };
+  });
   bCustForm(null);
 }
 
 // ---- Customer Form ----
-function rCustForm(c){
+function rCustForm(c) {
   const v=c||{};
-  return`<div class="card" id="cform"><div style="font-size:15px;font-weight:600;margin-bottom:14px">${c?'顧客情報を編集':'新規顧客追加'}</div>
-  <div class="fg">
+  return `<div class="card" id="cform"><div class="section-title">${c?'顧客情報を編集':'新規顧客追加'}</div>
+  <div class="fg2">
     <div><label>会社名 *</label><input id="cf-cn" value="${esc(v.companyName||'')}"></div>
     <div><label>電話番号（会社）</label><input id="cf-cp" value="${esc(v.companyPhone||'')}"></div>
     <div><label>メールアドレス（会社）</label><input id="cf-ce" type="email" value="${esc(v.companyEmail||'')}"></div>
@@ -320,14 +354,11 @@ function rCustForm(c){
     <div><label>資本金（円）</label><input id="cf-ca" type="number" value="${esc(v.capital||'')}"></div>
     <div><label>都道府県</label><input id="cf-pf" value="${esc(v.prefecture||'')}"></div>
     <div><label>市区町村</label><input id="cf-ct" value="${esc(v.city||'')}"></div>
-    <div><label>担当者名</label><input id="cf-nm" value="${esc(v.contactName||'')}"></div>
-    <div><label>電話番号（担当者）</label><input id="cf-pp" value="${esc(v.contactPhone||'')}"></div>
-    <div><label>メールアドレス（担当者）</label><input id="cf-pe" type="email" value="${esc(v.contactEmail||'')}"></div>
   </div>
   <div class="fa"><button id="cf-cancel">キャンセル</button><button class="primary" id="cf-save">保存</button></div></div>`;
 }
-function getFormData(){
-  return{
+function getCustFormData() {
+  return {
     companyName:document.getElementById('cf-cn').value.trim(),
     companyPhone:document.getElementById('cf-cp').value.trim(),
     companyEmail:document.getElementById('cf-ce').value.trim(),
@@ -336,141 +367,275 @@ function getFormData(){
     capital:document.getElementById('cf-ca').value,
     prefecture:document.getElementById('cf-pf').value.trim(),
     city:document.getElementById('cf-ct').value.trim(),
-    contactName:document.getElementById('cf-nm').value.trim(),
-    contactPhone:document.getElementById('cf-pp').value.trim(),
-    contactEmail:document.getElementById('cf-pe').value.trim(),
   };
 }
-function bCustForm(customer){
-  document.getElementById('cf-cancel')?.addEventListener('click',()=>{showAddC=false;editCid=null;render();});
-  document.getElementById('cf-save')?.addEventListener('click',async()=>{
-    const data=getFormData();
+function bCustForm(customer) {
+  const cancelEl=document.getElementById('cf-cancel');
+  if(cancelEl)cancelEl.onclick=()=>{showAddC=false;editCid=null;render();};
+  const saveEl=document.getElementById('cf-save');
+  if(saveEl)saveEl.onclick=async()=>{
+    const data=getCustFormData();
     if(!data.companyName){alert('会社名は必須です');return;}
     if(customer){
       await updateDoc(ref('customers',customer.id),data);
-      Object.assign(customer,data);
-      editCid=null; toast('更新しました');
+      Object.assign(customer,data); editCid=null; toast('更新しました');
     } else {
-      data.status='未架電'; data.createdAt=ts();
+      data.status='未架電'; data.assigneeId=''; data.createdAt=ts();
       const r=await addDoc(col('customers'),data);
-      st.customers.push({id:r.id,...data});
-      showAddC=false; toast('追加しました');
+      st.customers.push({id:r.id,...data}); showAddC=false; toast('追加しました');
     }
     await reload(); render();
-  });
+  };
 }
 
 // ---- Customer Detail ----
-function rDetail(){
+function rDetail() {
   const c=st.customers.find(x=>x.id===st.selId);
   if(!c)return`<div class="loading">顧客が見つかりません</div>`;
+  const contacts=st.contacts.filter(x=>x.customerId===c.id);
   const calls=st.calls.filter(x=>x.customerId===c.id).sort((a,b)=>new Date(b.calledAt)-new Date(a.calledAt));
-  return`<div style="margin:24px 0 16px"><button id="back">← 顧客リストへ戻る</button></div>
+  const assignee=st.users.find(u=>u.id===c.assigneeId);
+
+  return `<div style="margin:24px 0 16px;display:flex;gap:8px;align-items:center">
+  <button id="back">← 戻る</button>
+  ${editCid!==c.id?`<button id="edit-c">編集</button><button class="danger" id="del-c">削除</button>`:''}
+  </div>
   ${editCid===c.id?rCustForm(c):`
   <div class="card">
-    <div class="dh">
-      <div><div class="dc">${esc(c.companyName)}</div><div class="da">${esc([c.prefecture,c.city].filter(Boolean).join(' '))}</div></div>
-      <div style="display:flex;gap:8px;align-items:center">
-        <label style="margin:0">ステータス:</label>
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px">
+      <div>
+        <div style="font-size:22px;font-weight:700;margin-bottom:4px">${esc(c.companyName)}</div>
+        <div style="font-size:13px;color:var(--c-text2)">${esc([c.prefecture,c.city].filter(Boolean).join(' '))}</div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <label style="margin:0;white-space:nowrap">ステータス:</label>
         <select id="sts">${STATUSES.map(s=>`<option value="${s}"${c.status===s?' selected':''}>${s}</option>`).join('')}</select>
-        <button id="edit-c">編集</button>
-        <button class="danger" id="del-c">削除</button>
+        <label style="margin:0;white-space:nowrap">担当:</label>
+        <select id="assignee-sel">
+          <option value="">未割り当て</option>
+          ${st.users.map(u=>`<option value="${u.id}"${c.assigneeId===u.id?' selected':''}>${esc(u.name)}</option>`).join('')}
+        </select>
       </div>
     </div>
-    <div class="ig">
-      <div class="ir"><span class="il">会社電話</span><span>${esc(c.companyPhone||'-')}</span></div>
-      <div class="ir"><span class="il">会社メール</span><span>${esc(c.companyEmail||'-')}</span></div>
-      <div class="ir"><span class="il">HP</span><span>${c.website?`<a href="${esc(c.website)}" target="_blank">${esc(c.website)}</a>`:'-'}</span></div>
-      <div class="ir"><span class="il">従業員数</span><span>${c.employees?parseInt(c.employees).toLocaleString()+'名':'-'}</span></div>
-      <div class="ir"><span class="il">資本金</span><span>${c.capital?parseInt(c.capital).toLocaleString()+'円':'-'}</span></div>
-      <div class="ir"><span class="il">担当者名</span><span>${esc(c.contactName||'-')}</span></div>
-      <div class="ir"><span class="il">担当者電話</span><span>${esc(c.contactPhone||'-')}</span></div>
-      <div class="ir"><span class="il">担当者メール</span><span>${esc(c.contactEmail||'-')}</span></div>
+    <div class="info-grid">
+      <div class="info-row"><span class="info-label">会社電話</span><span>${esc(c.companyPhone||'-')}</span></div>
+      <div class="info-row"><span class="info-label">会社メール</span><span>${esc(c.companyEmail||'-')}</span></div>
+      <div class="info-row"><span class="info-label">HP</span><span>${c.website?`<a href="${esc(c.website)}" target="_blank">${esc(c.website)}</a>`:'-'}</span></div>
+      <div class="info-row"><span class="info-label">従業員数</span><span>${c.employees?parseInt(c.employees).toLocaleString()+'名':'-'}</span></div>
+      <div class="info-row"><span class="info-label">資本金</span><span>${c.capital?parseInt(c.capital).toLocaleString()+'円':'-'}</span></div>
     </div>
   </div>`}
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-    <div style="font-size:15px;font-weight:600">架電履歴（${calls.length}件）</div>
-    <button class="primary sm" id="add-call">+ 架電記録を追加</button>
+
+  <div class="tabs">
+    <button class="tab${detailTab==='contacts'?' active':''}" data-tab="contacts">担当者情報（${contacts.length}）</button>
+    <button class="tab${detailTab==='calls'?' active':''}" data-tab="calls">架電履歴（${calls.length}）</button>
+  </div>
+
+  ${detailTab==='contacts'?rContactsTab(c,contacts):''}
+  ${detailTab==='calls'?rCallsTab(c,calls):''}`;
+}
+
+// ---- Contacts Tab ----
+function rContactsTab(c, contacts) {
+  return `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+  <div style="font-size:14px;font-weight:600">担当者一覧</div>
+  <button class="primary sm" id="add-contact-btn">+ 担当者を追加</button>
+  </div>
+  ${showAddContact?rContactForm(c,null):''}
+  ${contacts.length===0&&!showAddContact
+    ?`<div style="padding:32px;text-align:center;color:var(--c-text3);background:var(--c-bg2);border-radius:var(--radius)">担当者が登録されていません</div>`
+    :contacts.map(ct=>editContactId===ct.id?rContactForm(c,ct):`
+    <div class="contact-card">
+      <div class="contact-header">
+        <div>
+          <div class="contact-name">${esc(ct.name||'-')}</div>
+          <div class="contact-sub">${[ct.department,ct.position].filter(Boolean).map(esc).join(' / ')||''}</div>
+        </div>
+        <div style="display:flex;gap:6px">
+          <button class="sm edit-contact-btn" data-ctid="${ct.id}">編集</button>
+          <button class="sm danger del-contact-btn" data-ctid="${ct.id}">削除</button>
+        </div>
+      </div>
+      <div class="info-grid" style="margin-top:10px">
+        <div class="info-row"><span class="info-label">電話番号</span><span>${esc(ct.phone||'-')}</span></div>
+        <div class="info-row"><span class="info-label">メールアドレス</span><span>${esc(ct.email||'-')}</span></div>
+        <div class="info-row"><span class="info-label">所属事業部</span><span>${esc(ct.department||'-')}</span></div>
+        <div class="info-row"><span class="info-label">役職</span><span>${esc(ct.position||'-')}</span></div>
+        ${ct.note?`<div class="info-row" style="grid-column:1/-1"><span class="info-label">備考</span><span style="white-space:pre-wrap">${esc(ct.note)}</span></div>`:''}
+      </div>
+    </div>`).join('')}`;
+}
+
+function rContactForm(c, ct) {
+  const v=ct||{};
+  return `<div class="card" style="margin-bottom:12px">
+  <div style="font-size:14px;font-weight:600;margin-bottom:12px">${ct?'担当者を編集':'担当者を追加'}</div>
+  <div class="fg2">
+    <div><label>担当者名 *</label><input id="ct-nm" value="${esc(v.name||'')}"></div>
+    <div><label>電話番号</label><input id="ct-ph" value="${esc(v.phone||'')}"></div>
+    <div><label>メールアドレス</label><input id="ct-em" type="email" value="${esc(v.email||'')}"></div>
+    <div><label>所属事業部</label><input id="ct-dep" value="${esc(v.department||'')}"></div>
+    <div><label>役職</label><input id="ct-pos" value="${esc(v.position||'')}"></div>
+  </div>
+  <div style="margin-top:10px"><label>備考</label><textarea id="ct-note" rows="2">${esc(v.note||'')}</textarea></div>
+  <div class="fa">
+    <button id="ct-cancel">キャンセル</button>
+    <button class="primary" id="ct-save" data-ctid="${ct?ct.id:''}">保存</button>
+  </div></div>`;
+}
+
+// ---- Calls Tab ----
+function rCallsTab(c, calls) {
+  return `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+  <div style="font-size:14px;font-weight:600">架電履歴</div>
+  <button class="primary sm" id="add-call">+ 架電記録を追加</button>
   </div>
   ${showCallF?rCallForm():''}
-  ${calls.length===0
+  ${calls.length===0&&!showCallF
     ?`<div style="padding:32px;text-align:center;color:var(--c-text3);background:var(--c-bg2);border-radius:var(--radius)">架電履歴がありません</div>`
     :calls.map(h=>{const u=st.users.find(x=>x.id===h.userId);return`
     <div class="call-card">
       <div class="call-meta">
-        <span class="call-dt">${new Date(h.calledAt).toLocaleString('ja-JP')}</span>
-        <span class="call-user">${esc(u?u.name:'不明')}</span>
+        <span style="font-size:13px;font-weight:600">${new Date(h.calledAt).toLocaleString('ja-JP')}</span>
+        <span style="font-size:12px;color:var(--c-text2)">${esc(u?u.name:'不明')}</span>
         <span class="badge" style="background:var(--c-bg3);color:var(--c-text)">${esc(h.result)}</span>
         <button class="danger sm del-call" data-cid="${h.id}" style="margin-left:auto">削除</button>
       </div>
-      ${h.memo?`<div class="call-memo">${esc(h.memo)}</div>`:''}
-      ${h.nextActionAt?`<div class="call-next">次回: ${new Date(h.nextActionAt).toLocaleString('ja-JP')}${h.nextActionContent?' — '+esc(h.nextActionContent):''}</div>`:''}
+      ${h.memo?`<div style="font-size:13px;white-space:pre-wrap;margin-bottom:4px">${esc(h.memo)}</div>`:''}
+      ${h.nextActionAt?`<div style="font-size:12px;color:var(--c-text2)">次回: ${new Date(h.nextActionAt).toLocaleString('ja-JP')}${h.nextActionContent?' — '+esc(h.nextActionContent):''}</div>`:''}
     </div>`;}).join('')}`;
 }
-function rCallForm(){
+
+function rCallForm() {
   const now=new Date(), iso=new Date(now.getTime()-now.getTimezoneOffset()*60000).toISOString().slice(0,16);
-  return`<div class="card" style="margin-bottom:14px">
+  return `<div class="card" style="margin-bottom:14px">
   <div style="font-size:14px;font-weight:600;margin-bottom:12px">架電記録を追加</div>
-  <div class="fg">
+  <div class="fg2">
     <div><label>架電日時</label><input type="datetime-local" id="h-dt" value="${iso}"></div>
     <div><label>架電結果</label><select id="h-res">${CALL_RESULTS.map(r=>`<option>${r}</option>`).join('')}</select></div>
   </div>
   <div style="margin:10px 0"><label>通話内容メモ</label><textarea id="h-memo" rows="3"></textarea></div>
-  <div class="fg">
+  <div class="fg2">
     <div><label>次回アクション日時</label><input type="datetime-local" id="h-nat"></div>
     <div><label>次回アクション内容</label><input id="h-nac"></div>
   </div>
   <div class="fa"><button id="h-cancel">キャンセル</button><button class="primary" id="h-save">保存</button></div></div>`;
 }
-function bDetail(){
+
+function bDetail() {
   const c=st.customers.find(x=>x.id===st.selId); if(!c)return;
-  document.getElementById('back').onclick=()=>{st.view='customers';editCid=null;showCallF=false;render();};
-  const elEditC=document.getElementById('edit-c');if(elEditC)elEditC.onclick=()=>{editCid=c.id;render();};
-  const elSts=document.getElementById('sts');if(elSts)elSts.onchange=async e=>{
-    await updateDoc(ref('customers',c.id),{status:e.target.value});
-    c.status=e.target.value; toast('ステータスを更新しました');
-  };
-  const elDelC=document.getElementById('del-c');if(elDelC)elDelC.onclick=async()=>{
-    if(!confirm(`「${c.companyName}」を削除しますか？架電履歴も削除されます。`))return;
+  document.getElementById('back').onclick=()=>{st.view='customers';editCid=null;showCallF=false;showAddContact=false;editContactId=null;render();};
+
+  // タブ切り替え
+  document.querySelectorAll('.tab[data-tab]').forEach(b=>b.onclick=()=>{detailTab=b.dataset.tab;showCallF=false;showAddContact=false;editContactId=null;render();});
+
+  const elEditC=document.getElementById('edit-c');
+  if(elEditC)elEditC.onclick=()=>{editCid=c.id;render();};
+  const elDelC=document.getElementById('del-c');
+  if(elDelC)elDelC.onclick=async()=>{
+    if(!confirm(`「${c.companyName}」を削除しますか？担当者・架電履歴も全て削除されます。`))return;
     await deleteDoc(ref('customers',c.id));
-    const rel=st.calls.filter(h=>h.customerId===c.id);
-    await Promise.all(rel.map(h=>deleteDoc(ref('callHistory',h.id))));
+    const relCalls=st.calls.filter(h=>h.customerId===c.id);
+    const relContacts=st.contacts.filter(ct=>ct.customerId===c.id);
+    await Promise.all([...relCalls.map(h=>deleteDoc(ref('callHistory',h.id))),...relContacts.map(ct=>deleteDoc(ref('contacts',ct.id)))]);
     st.customers=st.customers.filter(x=>x.id!==c.id);
     st.calls=st.calls.filter(x=>x.customerId!==c.id);
+    st.contacts=st.contacts.filter(x=>x.customerId!==c.id);
     st.view='customers'; toast('削除しました'); render();
   };
-  const elAddCall=document.getElementById('add-call');if(elAddCall)elAddCall.onclick=()=>{showCallF=true;render();};
-  const elHCancel=document.getElementById('h-cancel');if(elHCancel)elHCancel.onclick=()=>{showCallF=false;render();};
-  const elHSave=document.getElementById('h-save');if(elHSave)elHSave.onclick=async()=>{
-    const data={customerId:c.id,userId:st.user.id,calledAt:document.getElementById('h-dt').value,
-      result:document.getElementById('h-res').value,memo:document.getElementById('h-memo').value.trim(),
-      nextActionAt:document.getElementById('h-nat').value,nextActionContent:document.getElementById('h-nac').value.trim(),createdAt:ts()};
-    const r=await addDoc(col('callHistory'),data);
-    st.calls.push({id:r.id,...data});
-    if(data.result==='アポ獲得'&&(c.status==='未架電'||c.status==='架電済')){
-      await updateDoc(ref('customers',c.id),{status:'アポ獲得'}); c.status='アポ獲得';
-    } else if(c.status==='未架電'){
-      await updateDoc(ref('customers',c.id),{status:'架電済'}); c.status='架電済';
+
+  const elSts=document.getElementById('sts');
+  if(elSts)elSts.onchange=async e=>{await updateDoc(ref('customers',c.id),{status:e.target.value});c.status=e.target.value;toast('ステータス更新しました');};
+  const elAss=document.getElementById('assignee-sel');
+  if(elAss)elAss.onchange=async e=>{await updateDoc(ref('customers',c.id),{assigneeId:e.target.value});c.assigneeId=e.target.value;toast('担当者を更新しました');};
+
+  // 担当者タブ
+  const elAddCt=document.getElementById('add-contact-btn');
+  if(elAddCt)elAddCt.onclick=()=>{showAddContact=true;editContactId=null;render();};
+  const elCtCancel=document.getElementById('ct-cancel');
+  if(elCtCancel)elCtCancel.onclick=()=>{showAddContact=false;editContactId=null;render();};
+  const elCtSave=document.getElementById('ct-save');
+  if(elCtSave)elCtSave.onclick=async()=>{
+    const name=document.getElementById('ct-nm').value.trim();
+    if(!name){alert('担当者名は必須です');return;}
+    const data={customerId:c.id,name,phone:document.getElementById('ct-ph').value.trim(),email:document.getElementById('ct-em').value.trim(),department:document.getElementById('ct-dep').value.trim(),position:document.getElementById('ct-pos').value.trim(),note:document.getElementById('ct-note').value.trim()};
+    const ctid=elCtSave.dataset.ctid;
+    if(ctid){
+      await updateDoc(ref('contacts',ctid),data);
+      const idx=st.contacts.findIndex(x=>x.id===ctid);if(idx>=0)st.contacts[idx]={...st.contacts[idx],...data};
+      editContactId=null; toast('更新しました');
+    } else {
+      data.createdAt=ts();const r=await addDoc(col('contacts'),data);
+      st.contacts.push({id:r.id,...data}); showAddContact=false; toast('担当者を追加しました');
     }
+    render();
+  };
+  document.querySelectorAll('.edit-contact-btn').forEach(b=>b.onclick=()=>{editContactId=b.dataset.ctid;showAddContact=false;render();});
+  document.querySelectorAll('.del-contact-btn').forEach(b=>b.onclick=async()=>{
+    if(!confirm('この担当者を削除しますか？'))return;
+    await deleteDoc(ref('contacts',b.dataset.ctid));
+    st.contacts=st.contacts.filter(x=>x.id!==b.dataset.ctid); toast('削除しました'); render();
+  });
+
+  // 架電タブ
+  const elAddCall=document.getElementById('add-call');
+  if(elAddCall)elAddCall.onclick=()=>{showCallF=true;render();};
+  const elHCancel=document.getElementById('h-cancel');
+  if(elHCancel)elHCancel.onclick=()=>{showCallF=false;render();};
+  const elHSave=document.getElementById('h-save');
+  if(elHSave)elHSave.onclick=async()=>{
+    const data={customerId:c.id,userId:st.user.id,calledAt:document.getElementById('h-dt').value,result:document.getElementById('h-res').value,memo:document.getElementById('h-memo').value.trim(),nextActionAt:document.getElementById('h-nat').value,nextActionContent:document.getElementById('h-nac').value.trim(),createdAt:ts()};
+    const r=await addDoc(col('callHistory'),data); st.calls.push({id:r.id,...data});
+    if(data.result==='アポ獲得'&&(c.status==='未架電'||c.status==='架電済')){await updateDoc(ref('customers',c.id),{status:'アポ獲得'});c.status='アポ獲得';}
+    else if(c.status==='未架電'){await updateDoc(ref('customers',c.id),{status:'架電済'});c.status='架電済';}
     showCallF=false; toast('架電記録を保存しました'); render();
   };
   document.querySelectorAll('.del-call').forEach(b=>b.onclick=async e=>{
     e.stopPropagation();
     if(!confirm('この架電記録を削除しますか？'))return;
     await deleteDoc(ref('callHistory',b.dataset.cid));
-    st.calls=st.calls.filter(x=>x.id!==b.dataset.cid);
-    toast('削除しました'); render();
+    st.calls=st.calls.filter(x=>x.id!==b.dataset.cid); toast('削除しました'); render();
   });
   bCustForm(editCid?c:null);
 }
 
+// ---- My List ----
+function rMyList() {
+  const viewUser = st.users.find(u=>u.id===assignViewUid) || st.user;
+  const assigned = st.customers.filter(c=>c.assigneeId===viewUser.id);
+  return `<div class="ph"><div class="pt">マイリスト</div></div>
+  <div style="margin-bottom:16px">
+    <div style="font-size:12px;color:var(--c-text2);margin-bottom:8px">表示するユーザーを選択：</div>
+    <div class="user-switcher">
+      ${st.users.map(u=>`<button class="user-chip${assignViewUid===u.id?' active':''}" data-uid="${u.id}">${esc(u.name)}（${st.customers.filter(c=>c.assigneeId===u.id).length}件）</button>`).join('')}
+    </div>
+  </div>
+  <div style="font-size:14px;font-weight:600;margin-bottom:12px">${esc(viewUser.name)} の割り当てリスト（${assigned.length}件）</div>
+  <div class="tw"><table><thead><tr>
+    <th>会社名</th><th>電話番号</th><th>地域</th><th>ステータス</th>
+  </tr></thead><tbody>
+  ${assigned.length===0
+    ?`<tr><td colspan="4" style="text-align:center;color:var(--c-text3);padding:32px">割り当てられた顧客がありません</td></tr>`
+    :assigned.map(c=>`<tr class="row" data-id="${c.id}">
+    <td><strong>${esc(c.companyName)}</strong></td>
+    <td>${esc(c.companyPhone||'-')}</td>
+    <td style="color:var(--c-text2)">${esc([c.prefecture,c.city].filter(Boolean).join(' ')||'-')}</td>
+    <td><span class="badge s-${c.status||'未架電'}">${c.status||'未架電'}</span></td>
+  </tr>`).join('')}
+  </tbody></table></div>`;
+}
+function bMyList() {
+  document.querySelectorAll('.user-chip[data-uid]').forEach(b=>b.onclick=()=>{assignViewUid=b.dataset.uid;render();});
+  document.querySelectorAll('tr.row[data-id]').forEach(tr=>tr.onclick=()=>{st.selId=tr.dataset.id;st.view='detail';detailTab='info';showCallF=false;editCid=null;showAddContact=false;editContactId=null;render();});
+}
+
 // ---- Import ----
-function rImport(){
-  return`<div class="ph"><div class="pt">CSVインポート</div></div>
+function rImport() {
+  return `<div class="ph"><div class="pt">CSVインポート</div></div>
   <div class="card">
     <div style="background:var(--c-blue-bg);color:var(--c-blue-text);padding:12px 16px;border-radius:var(--radius);margin-bottom:16px;font-size:12px">
       <div style="font-weight:600;margin-bottom:4px">CSVフォーマット（1行目はヘッダー行）</div>
-      会社名, 電話番号（会社）, メールアドレス（会社）, HP（URL）, 従業員数, 資本金, 都道府県, 市区町村, 担当者名, 電話番号（担当者）, メールアドレス（担当者）
+      会社名, 電話番号（会社）, メールアドレス（会社）, HP（URL）, 従業員数, 資本金, 都道府県, 市区町村
     </div>
     <div style="margin-bottom:14px"><label>CSVファイルを選択</label><input type="file" id="csv-file" accept=".csv" style="padding:6px"></div>
     <div style="margin-bottom:14px"><label>またはCSVを直接貼り付け</label><textarea id="csv-txt" rows="8" style="font-family:monospace;font-size:12px" placeholder="ここにCSVデータを貼り付け...">${esc(importTxt)}</textarea></div>
@@ -478,42 +643,40 @@ function rImport(){
       <button id="csv-prev">プレビュー確認</button>
       ${importPrev.length>0?`<button class="primary" id="csv-imp">${importPrev.length}件をインポート</button>`:''}
     </div>
-    ${importPrev.length>0?`<div class="tw"><table><thead><tr><th>会社名</th><th>会社電話</th><th>担当者</th><th>地域</th></tr></thead><tbody>
-    ${importPrev.slice(0,30).map(r=>`<tr><td>${esc(r['会社名']||'')}</td><td>${esc(r['電話番号（会社）']||r['会社電話']||'')}</td><td>${esc(r['担当者名']||'')}</td><td>${esc((r['都道府県']||'')+' '+(r['市区町村']||''))}</td></tr>`).join('')}
+    ${importPrev.length>0?`<div class="tw"><table><thead><tr><th>会社名</th><th>会社電話</th><th>地域</th></tr></thead><tbody>
+    ${importPrev.slice(0,30).map(r=>`<tr><td>${esc(r['会社名']||'')}</td><td>${esc(r['電話番号（会社）']||'')}</td><td>${esc((r['都道府県']||'')+' '+(r['市区町村']||''))}</td></tr>`).join('')}
     </tbody></table></div>`:''}
   </div>`;
 }
-function bImport(){
+function bImport() {
   document.getElementById('csv-file').onchange=e=>{
-    const f=e.target.files[0]; if(!f)return;
-    const rd=new FileReader(); rd.onload=ev=>{importTxt=ev.target.result;document.getElementById('csv-txt').value=importTxt;};
+    const f=e.target.files[0];if(!f)return;
+    const rd=new FileReader();rd.onload=ev=>{importTxt=ev.target.result;document.getElementById('csv-txt').value=importTxt;};
     rd.readAsText(f,'UTF-8');
   };
   document.getElementById('csv-prev').onclick=()=>{
     importTxt=document.getElementById('csv-txt').value;
     importPrev=parseCSV(importTxt);
-    if(!importPrev.length){alert('データが見つかりません。CSVフォーマットを確認してください。');return;}
+    if(!importPrev.length){alert('データが見つかりません');return;}
     render();
   };
-  const elCsvImp=document.getElementById('csv-imp');if(elCsvImp)elCsvImp.onclick=async()=>{
+  const elImp=document.getElementById('csv-imp');
+  if(elImp)elImp.onclick=async()=>{
     const items=importPrev.map(r=>({
-      companyName:r['会社名']||'',companyPhone:r['電話番号（会社）']||r['会社電話']||'',
-      companyEmail:r['メールアドレス（会社）']||r['会社メール']||'',website:r['HP（URL）']||r['HP']||r['URL']||'',
-      employees:r['従業員数']||'',capital:r['資本金']||r['資本金（円）']||'',
-      prefecture:r['都道府県']||'',city:r['市区町村']||'',
-      contactName:r['担当者名']||'',contactPhone:r['電話番号（担当者）']||r['担当者電話']||'',
-      contactEmail:r['メールアドレス（担当者）']||r['担当者メール']||'',status:'未架電',createdAt:ts()
+      companyName:r['会社名']||'',companyPhone:r['電話番号（会社）']||'',companyEmail:r['メールアドレス（会社）']||'',
+      website:r['HP（URL）']||r['HP']||'',employees:r['従業員数']||'',capital:r['資本金']||'',
+      prefecture:r['都道府県']||'',city:r['市区町村']||'',status:'未架電',assigneeId:'',createdAt:ts()
     })).filter(x=>x.companyName);
     for(const item of items){const r=await addDoc(col('customers'),item);st.customers.push({id:r.id,...item});}
-    importPrev=[];importTxt=''; toast(`${items.length}件をインポートしました`);
-    await reload(); st.view='customers'; render();
+    importPrev=[];importTxt='';toast(`${items.length}件をインポートしました`);
+    await reload();st.view='customers';render();
   };
 }
 
 // ---- Settings ----
-function rSettings(){
+function rSettings() {
   if(st.user.role!=='admin')return`<div class="ph"><div class="pt">設定</div></div><div class="card" style="text-align:center;color:var(--c-text2);padding:40px">管理者のみアクセス可能です</div>`;
-  return`<div class="ph"><div class="pt">設定 — ユーザー管理</div><button class="primary" id="add-u">+ ユーザー追加</button></div>
+  return `<div class="ph"><div class="pt">設定 — ユーザー管理</div><button class="primary" id="add-u">+ ユーザー追加</button></div>
   <div class="anote">ユーザーはメールアドレスでログインします。管理者権限は複数のユーザーに付与できます。</div>
   ${showAddU?rUserForm(null):''}
   <div class="tw"><table><thead><tr>
@@ -523,16 +686,18 @@ function rSettings(){
   `<tr><td><strong>${esc(u.name)}</strong></td><td style="color:var(--c-text2)">${esc(u.email||'-')}</td>
   <td>${u.role==='admin'?`<span class="badge" style="background:var(--c-blue-bg);color:var(--c-blue-text)">管理者</span>`:`<span class="badge" style="background:var(--c-bg3);color:var(--c-text2)">ユーザー</span>`}</td>
   <td style="text-align:right">${u.callTarget||0}</td><td style="text-align:right">${u.apoTarget||0}</td>
-  <td style="text-align:right"><button class="sm eu" data-uid="${u.id}">編集</button>${u.id!==st.user.id?`<button class="sm danger du" data-uid="${u.id}" data-name="${esc(u.name)}">削除</button>`:''}</td>
-  </tr>`).join('')}
+  <td style="text-align:right">
+    <button class="sm eu" data-uid="${u.id}">編集</button>
+    ${u.id!==st.user.id?`<button class="sm danger du" data-uid="${u.id}" data-name="${esc(u.name)}">削除</button>`:''}
+  </td></tr>`).join('')}
   </tbody></table></div>`;
 }
-function rUserForm(u){
+function rUserForm(u) {
   const v=u||{};
-  return`<div class="card" style="margin-bottom:14px">
+  return `<div class="card" style="margin-bottom:14px">
   <div style="font-size:14px;font-weight:600;margin-bottom:12px">${u?'ユーザー編集':'ユーザー追加'}</div>
-  <div id="uf-err" style="display:none" class="err"></div>
-  <div class="fg">
+  <div id="uf-err" style="display:none" class="err-box"></div>
+  <div class="fg2">
     <div><label>名前 *</label><input id="uf-n" value="${esc(v.name||'')}"></div>
     <div><label>メールアドレス *</label><input id="uf-e" type="email" value="${esc(v.email||'')}"></div>
     <div><label>権限</label><select id="uf-r"><option value="user"${v.role!=='admin'?' selected':''}>ユーザー</option><option value="admin"${v.role==='admin'?' selected':''}>管理者</option></select></div>
@@ -541,16 +706,18 @@ function rUserForm(u){
   </div>
   <div class="fa"><button id="uf-cancel">キャンセル</button><button class="primary" id="uf-save">保存</button></div></div>`;
 }
-function bSettings(){
+function bSettings() {
   document.getElementById('add-u').onclick=()=>{showAddU=!showAddU;editUid=null;render();};
   document.querySelectorAll('.eu').forEach(b=>b.onclick=()=>{editUid=b.dataset.uid;showAddU=false;render();});
   document.querySelectorAll('.du').forEach(b=>b.onclick=async()=>{
     if(!confirm(`「${b.dataset.name}」を削除しますか？`))return;
     await deleteDoc(ref('users',b.dataset.uid));
-    st.users=st.users.filter(u=>u.id!==b.dataset.uid); toast('削除しました'); render();
+    st.users=st.users.filter(u=>u.id!==b.dataset.uid);toast('削除しました');render();
   });
-  const elUfCancel=document.getElementById('uf-cancel');if(elUfCancel)elUfCancel.onclick=()=>{showAddU=false;editUid=null;render();};
-  const elUfSave=document.getElementById('uf-save');if(elUfSave)elUfSave.onclick=async()=>{
+  const elUfCancel=document.getElementById('uf-cancel');
+  if(elUfCancel)elUfCancel.onclick=()=>{showAddU=false;editUid=null;render();};
+  const elUfSave=document.getElementById('uf-save');
+  if(elUfSave)elUfSave.onclick=async()=>{
     const name=document.getElementById('uf-n').value.trim();
     const email=document.getElementById('uf-e').value.trim();
     const errEl=document.getElementById('uf-err');
@@ -566,7 +733,7 @@ function bSettings(){
     } else {
       data.createdAt=ts();const r=await addDoc(col('users'),data);st.users.push({id:r.id,...data});showAddU=false;
     }
-    toast('保存しました'); render();
+    toast('保存しました');render();
   };
 }
 
