@@ -312,6 +312,54 @@ function bApp() {
 // ============================================================
 // Dashboard
 // ============================================================
+
+// メインフロー（ファネル表示）
+const FLOW_STATUSES = ['未架電','架電済','アポ獲得','初回商談','提案中','検討中','受注'];
+// サブ（目立たせない）
+const SUB_STATUSES  = ['架電NG','ナーチャリング','失注'];
+
+// フローの色定義（ステップが進むほど濃くなるグラデーション）
+const FLOW_COLORS = {
+  '未架電':   {bg:'#f1f0e8', text:'#555',    border:'#d8d6c8'},
+  '架電済':   {bg:'#dce8fd', text:'#1a56c4',  border:'#a8c4f0'},
+  'アポ獲得': {bg:'#c8e6d4', text:'#0d6e2e',  border:'#7dba98'},
+  '初回商談': {bg:'#b8e0da', text:'#0a5048',  border:'#6dbfb5'},
+  '提案中':   {bg:'#d8c8f8', text:'#4a20a0',  border:'#a882e8'},
+  '検討中':   {bg:'#f0c0df', text:'#7a1050',  border:'#d878b0'},
+  '受注':     {bg:'#a8d870', text:'#173404',  border:'#78b030'},
+};
+
+function rFunnelCard(status, count, isUser) {
+  const c = FLOW_COLORS[status] || {bg:'#f5f5f5',text:'#555',border:'#ddd'};
+  const pct = Math.max(40, Math.min(100, count > 0 ? 100 : 40));
+  const idx = FLOW_STATUSES.indexOf(status);
+  // ファネル: 左右に clip-path で台形にする（インデックスが進むほど狭まる）
+  const indent = idx * 10;
+  return `<div class="funnel-step" data-status="${esc(status)}" data-user="${isUser?'1':'0'}"
+    style="background:${c.bg};border:1.5px solid ${c.border};color:${c.text};
+           margin-left:${indent}px;margin-right:${indent}px;
+           border-radius:8px;padding:14px 20px;cursor:pointer;
+           transition:filter .15s,transform .15s;position:relative;">
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <div>
+        <div style="font-size:11px;font-weight:600;opacity:.75;margin-bottom:2px">${esc(status)}</div>
+        <div style="font-size:28px;font-weight:700;line-height:1">${count}</div>
+        <div style="font-size:11px;opacity:.6;margin-top:2px">件</div>
+      </div>
+      ${idx < FLOW_STATUSES.length-1 ? `<div style="font-size:18px;opacity:.4">▼</div>` : `<div style="font-size:18px">🎉</div>`}
+    </div>
+  </div>`;
+}
+
+function rSubCard(status, count, isUser) {
+  return `<div class="sub-step" data-status="${esc(status)}" data-user="${isUser?'1':'0'}"
+    style="background:var(--c-bg2);border:1px solid var(--c-border);color:var(--c-text3);
+           border-radius:6px;padding:10px 14px;cursor:pointer;transition:filter .15s;">
+    <div style="font-size:10px;margin-bottom:3px">${esc(status)}</div>
+    <div style="font-size:18px;font-weight:600;color:var(--c-text2)">${count}</div>
+  </div>`;
+}
+
 function rDash() {
   const now=new Date(),s=new Date();
   if(dashPeriod==='day')s.setHours(0,0,0,0);
@@ -331,6 +379,8 @@ function rDash() {
     <td style="text-align:right">${ap}</td><td style="text-align:right;color:var(--c-text2)">${u.apoTarget||0}</td>
     <td style="text-align:right" class="${ad>=0?'pos':'neg'}">${ad>=0?'+':''}${ad}</td></tr>`;
   }).join('');
+
+  // ユーザー別集計
   const uid=dashUserFilter||(st.users[0]&&st.users[0].id)||'';
   const usc={};STATUSES.forEach(x=>usc[x]=0);
   let assignedTotal=0;
@@ -338,38 +388,76 @@ function rDash() {
 
   return `<div class="ph"><div class="pt">ダッシュボード</div>
   <div class="ptabs">${['day','week','month'].map(p=>`<button class="ptab${dashPeriod===p?' active':''}" data-p="${p}">${pL[p]}</button>`).join('')}</div></div>
+
   <div class="stat-grid">
     <div class="stat-card"><div class="stat-label">総顧客数</div><div class="stat-value">${st.customers.length.toLocaleString()}</div></div>
     <div class="stat-card"><div class="stat-label">期間内架電数</div><div class="stat-value">${fc.length}</div></div>
     <div class="stat-card"><div class="stat-label">アポ獲得（累計）</div><div class="stat-value">${st.customers.filter(c=>c.status==='アポ獲得').length}</div></div>
     <div class="stat-card"><div class="stat-label">受注（累計）</div><div class="stat-value">${st.customers.filter(c=>c.status==='受注').length}</div></div>
   </div>
+
   <div class="card"><div class="section-title">ユーザー別実績（${pL[dashPeriod]}）</div>
   <div class="tw"><table><thead><tr>
     <th>ユーザー</th><th style="text-align:right">架電数</th><th style="text-align:right">架電目標</th><th style="text-align:right">差分</th>
     <th style="text-align:right">アポ獲得</th><th style="text-align:right">アポ目標</th><th style="text-align:right">差分</th>
   </tr></thead><tbody>${rows}</tbody></table></div></div>
-  <div class="card"><div class="section-title">ステータス別顧客数（全体）</div>
-  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px">
-    ${STATUSES.map(s=>`<div style="padding:12px;border-radius:8px" class="s-${s}"><div style="font-size:11px;margin-bottom:6px">${s}</div><div style="font-size:22px;font-weight:700">${sc[s]}</div></div>`).join('')}
-  </div></div>
+
   <div class="card">
-    <div class="section-title">
-      <span>ステータス別顧客数（ユーザー別）</span>
+    <div class="section-title" style="margin-bottom:16px">
+      <span>営業フロー（全体）</span>
+      <span style="font-size:12px;color:var(--c-text2);font-weight:400">クリックで顧客リストへ</span>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:16px">
+      ${FLOW_STATUSES.map(s=>rFunnelCard(s, sc[s], false)).join('')}
+    </div>
+    <div style="border-top:1px solid var(--c-border);padding-top:12px;margin-top:4px">
+      <div style="font-size:11px;color:var(--c-text3);margin-bottom:8px">その他</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        ${SUB_STATUSES.map(s=>rSubCard(s, sc[s], false)).join('')}
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="section-title" style="margin-bottom:16px">
+      <span>営業フロー（ユーザー別）</span>
       <select id="dash-user-sel" style="font-size:13px;padding:5px 10px;border-radius:var(--radius);border:1px solid var(--c-border);background:var(--c-bg);font-family:inherit;min-width:140px">
         ${st.users.map(u=>`<option value="${u.id}"${dashUserFilter===u.id?' selected':''}>${esc(u.name)}</option>`).join('')}
       </select>
     </div>
     <div style="font-size:12px;color:var(--c-text2);margin-bottom:12px">担当顧客数：${assignedTotal}件</div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px">
-      ${STATUSES.map(s=>`<div style="padding:12px;border-radius:8px" class="s-${s}"><div style="font-size:11px;margin-bottom:6px">${s}</div><div style="font-size:22px;font-weight:700">${usc[s]}</div></div>`).join('')}
+    <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:16px">
+      ${FLOW_STATUSES.map(s=>rFunnelCard(s, usc[s], true)).join('')}
+    </div>
+    <div style="border-top:1px solid var(--c-border);padding-top:12px;margin-top:4px">
+      <div style="font-size:11px;color:var(--c-text3);margin-bottom:8px">その他</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        ${SUB_STATUSES.map(s=>rSubCard(s, usc[s], true)).join('')}
+      </div>
     </div>
   </div>`;
 }
+
 function bDash() {
   document.querySelectorAll('.ptab').forEach(b=>b.onclick=()=>{dashPeriod=b.dataset.p;render();});
   const sel=document.getElementById('dash-user-sel');
   if(sel)sel.onchange=()=>{dashUserFilter=sel.value;render();};
+
+  // ファネルカード・サブカードクリック → 顧客リストへ遷移（ステータスフィルター適用）
+  document.querySelectorAll('.funnel-step, .sub-step').forEach(el=>{
+    el.onmouseenter=()=>{el.style.filter='brightness(.95)';el.style.transform='translateY(-1px)';};
+    el.onmouseleave=()=>{el.style.filter='';el.style.transform='';};
+    el.onclick=()=>{
+      const status=el.dataset.status;
+      const isUser=el.dataset.user==='1';
+      // フィルターをセット
+      cf={search:'',status,pref:'',minE:'',maxE:'',res:'',assignee:'',rank:''};
+      // ユーザー別の場合は担当者フィルターも適用
+      if(isUser && dashUserFilter) cf.assignee = dashUserFilter;
+      st.view='customers';
+      render();
+    };
+  });
 }
 
 // ============================================================
