@@ -327,31 +327,42 @@ const FLOW_COLORS = {
   '受注':     {bg:'#a8d870', text:'#173404',  arrow:'#78b030'},
 };
 
-// 横並び矢印型ステップ（clip-pathで右側を矢印型に・左側を凹ませる）
+// 横並び矢印型ステップ（重なり型・隣と重なってチェーン状）
 function rFlowRow(statusCounts, isUser) {
   const last = FLOW_STATUSES.length - 1;
+  const AW = 16; // 矢印の出っ張りpx
   const steps = FLOW_STATUSES.map((s, i) => {
     const c = FLOW_COLORS[s];
     const count = statusCounts[s] || 0;
-    // clip-path: 最初は左辺まっすぐ、以降は左凹み。最後以外は右矢印
-    const leftIndent  = i === 0 ? '0%'  : '6%';
-    const rightArrow  = i === last ? '100%' : '94%';
-    const clipPath = i === 0
-      ? `polygon(0% 0%, ${rightArrow} 0%, 100% 50%, ${rightArrow} 100%, 0% 100%)`
-      : `polygon(${leftIndent} 0%, ${rightArrow} 0%, 100% 50%, ${rightArrow} 100%, ${leftIndent} 100%, 0% 50%)`;
+    const isFirst = i === 0;
+    const isLast  = i === last;
+    // 左凹み: 最初はなし、以降はAW分凹む
+    // 右矢印: 最後以外はAW分出っ張る
+    let pts;
+    if (isFirst && isLast) {
+      pts = '0 0, 100% 0, 100% 100%, 0 100%';
+    } else if (isFirst) {
+      pts = `0 0, calc(100% - ${AW}px) 0, 100% 50%, calc(100% - ${AW}px) 100%, 0 100%`;
+    } else if (isLast) {
+      pts = `0 0, 100% 0, 100% 100%, 0 100%, ${AW}px 50%`;
+    } else {
+      pts = `0 0, calc(100% - ${AW}px) 0, 100% 50%, calc(100% - ${AW}px) 100%, 0 100%, ${AW}px 50%`;
+    }
     return `<div class="flow-step" data-status="${esc(s)}" data-user="${isUser?'1':'0'}"
-      style="flex:1;min-width:0;background:${c.bg};color:${c.text};
-             clip-path:${clipPath};
-             padding:14px 8px 14px ${i===0?'14px':'20px'};
-             cursor:pointer;transition:filter .15s,transform .15s;
+      style="flex:1;min-width:90px;height:76px;
+             background:${c.bg};color:${c.text};
+             clip-path:polygon(${pts});
+             margin-left:${isFirst ? '0' : '-'+AW+'px'};
+             z-index:${last - i + 2};
              display:flex;flex-direction:column;align-items:center;justify-content:center;
-             text-align:center;position:relative;">
-      <div style="font-size:10px;font-weight:600;opacity:.7;white-space:nowrap;margin-bottom:4px">${esc(s)}</div>
-      <div style="font-size:26px;font-weight:700;line-height:1">${count}</div>
-      <div style="font-size:10px;opacity:.55;margin-top:2px">件</div>
+             text-align:center;cursor:pointer;transition:filter .15s;
+             padding:0 ${isLast ? 10 : AW+8}px 0 ${isFirst ? 14 : AW+8}px;">
+      <div style="font-size:10px;font-weight:600;opacity:.7;white-space:nowrap;margin-bottom:3px">${esc(s)}</div>
+      <div style="font-size:24px;font-weight:700;line-height:1">${count}</div>
+      <div style="font-size:10px;opacity:.5;margin-top:2px">件</div>
     </div>`;
   }).join('');
-  return `<div style="display:flex;height:80px;gap:0;overflow-x:auto;">${steps}</div>`;
+  return `<div style="display:flex;align-items:stretch;overflow-x:auto;padding:2px 0;">${steps}</div>`;
 }
 
 function rSubCard(status, count, isUser) {
