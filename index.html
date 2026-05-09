@@ -7,9 +7,6 @@
 <!--
 =============================================================
 【Firestoreセキュリティルール】
-Firebaseコンソール > Firestore > ルール に以下を設定してください。
-これを設定しないと認証していないユーザーもデータにアクセスできます。
-
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -30,7 +27,6 @@ service cloud.firestore {
     --c-green: #1e8e3e; --c-green-bg: #e6f4ea;
     --c-red: #c5221f; --c-red-bg: #fce8e6;
     --c-yellow-bg: #fef7e0; --c-yellow-text: #b06000;
-    --c-purple-bg: #f3e8fd; --c-purple-text: #5b2d9e;
     --radius: 8px; --radius-lg: 12px;
   }
   body { font-family: 'Hiragino Sans','Noto Sans JP',sans-serif; background: var(--c-bg2); color: var(--c-text); font-size: 14px; line-height: 1.6; min-height: 100vh; }
@@ -50,7 +46,6 @@ service cloud.firestore {
   button.danger { color: var(--c-red); border-color: transparent; background: transparent; }
   button.danger:hover { background: var(--c-red-bg); }
   button.sm { padding: 4px 10px; font-size: 12px; }
-  button.ghost { border-color: transparent; background: transparent; }
   button:disabled { opacity: 0.6; cursor: not-allowed; }
   input, select, textarea { font-family: inherit; font-size: 13px; border: 1px solid var(--c-border); border-radius: var(--radius); padding: 8px 10px; width: 100%; background: var(--c-bg); color: var(--c-text); }
   input:focus, select:focus, textarea:focus { outline: none; border-color: var(--c-blue); box-shadow: 0 0 0 3px rgba(26,115,232,.12); }
@@ -75,25 +70,33 @@ service cloud.firestore {
   .ptabs { display: flex; gap: 4px; }
   .ptab { padding: 6px 14px; font-size: 12px; border-radius: 20px; border: 1px solid var(--c-border); background: transparent; cursor: pointer; font-family: inherit; }
   .ptab.active { background: var(--c-blue); color: #fff; border-color: var(--c-blue); }
+  /* ステータスバッジ */
   .s-未架電{background:#f1f0e8;color:#444} .s-架電済{background:#e8f0fe;color:#174ea6}
   .s-架電NG{background:#fce8e6;color:#a50e0e} .s-ナーチャリング{background:#fef7e0;color:#b06000}
   .s-アポ獲得{background:#e6f4ea;color:#137333} .s-初回商談{background:#e0f7f4;color:#0d5f54}
   .s-提案中{background:#f3e8fd;color:#5b2d9e} .s-検討中{background:#fce8f3;color:#8d1f5e}
   .s-受注{background:#c0dd97;color:#173404} .s-失注{background:#e8e8e8;color:#444}
+  /* ランクバッジ */
+  .r-A{background:#fff0e0;color:#c05000;font-weight:700;border:1px solid #f0c080}
+  .r-B{background:#e8f0fe;color:#1a56c4;font-weight:700;border:1px solid #a8c4f0}
+  .r-C{background:#e6f4ea;color:#137333;font-weight:700;border:1px solid #90d0a8}
+  .r-D{background:#f0f0f0;color:#555;font-weight:700;border:1px solid #ccc}
+  .r-未設定{background:#f5f5f5;color:#aaa;border:1px solid #ddd}
+  /* その他 */
   .login-wrap { min-height:100vh; display:flex; align-items:center; justify-content:center; }
   .login-card { background:var(--c-bg); border:1px solid var(--c-border); border-radius:var(--radius-lg); padding:40px; width:100%; max-width:420px; box-shadow:0 2px 12px rgba(0,0,0,.08); }
   .login-title { font-size:22px; font-weight:700; text-align:center; margin-bottom:8px; color:var(--c-blue); }
   .login-sub { font-size:13px; color:var(--c-text2); text-align:center; margin-bottom:28px; }
   .err-box { background:var(--c-red-bg); color:var(--c-red); padding:10px 14px; border-radius:var(--radius); font-size:13px; margin-bottom:12px; }
   .ok-box { background:var(--c-green-bg); color:var(--c-green); padding:10px 14px; border-radius:var(--radius); font-size:13px; margin-bottom:12px; }
-  .pos { color:var(--c-green); font-weight:600; } .neg { color:var(--c-red); font-weight:600; }
+  .pos{color:var(--c-green);font-weight:600} .neg{color:var(--c-red);font-weight:600}
   .loading { text-align:center; padding:60px; color:var(--c-text3); font-size:15px; }
   .toast { position:fixed; bottom:24px; right:24px; background:#323232; color:#fff; padding:12px 20px; border-radius:var(--radius); font-size:13px; z-index:9999; animation:fi .2s; }
   @keyframes fi { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
   .call-card { background:var(--c-bg2); border-radius:var(--radius); padding:14px; margin-bottom:10px; }
   .call-meta { display:flex; gap:10px; align-items:center; margin-bottom:8px; flex-wrap:wrap; }
   .section-title { font-size:15px; font-weight:600; margin-bottom:12px; display:flex; justify-content:space-between; align-items:center; }
-  .tabs { display:flex; border-bottom:1px solid var(--c-border); margin-bottom:16px; gap:0; }
+  .tabs { display:flex; border-bottom:1px solid var(--c-border); margin-bottom:16px; }
   .tab { padding:10px 18px; font-size:13px; border:none; background:transparent; cursor:pointer; font-family:inherit; color:var(--c-text2); border-bottom:2px solid transparent; margin-bottom:-1px; }
   .tab.active { color:var(--c-blue); border-bottom-color:var(--c-blue); font-weight:600; }
   .contact-card { background:var(--c-bg2); border-radius:var(--radius); padding:14px; margin-bottom:10px; }
@@ -116,19 +119,9 @@ service cloud.firestore {
 <div id="root"><div class="loading">読み込み中...</div></div>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, collection, doc, getDocs, addDoc, setDoc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-import {
-  getAuth,
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  signOut,
-  sendPasswordResetEmail,
-  onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore, collection, doc, getDocs, addDoc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendPasswordResetEmail, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-// ============================================================
-// Firebase設定（既存の設定をそのまま利用）
-// ============================================================
 const firebaseConfig = {
   apiKey: "AIzaSyBfuI8QrZZJml1HCmFa7VeYXh81k07kHnM",
   authDomain: "teleapposfa.firebaseapp.com",
@@ -146,65 +139,57 @@ const ref = (n, id) => doc(db, n, id);
 
 const CALL_RESULTS = ['不通','受付NG','担当者不在','有効応答','担当者NG','資料送付','アポ獲得','ミスディレクション'];
 const STATUSES = ['未架電','架電済','架電NG','ナーチャリング','アポ獲得','初回商談','提案中','検討中','受注','失注'];
+const RANKS = ['A','B','C','D'];
 
+// ============================================================
 // State
+// ============================================================
 let st = { loaded:false, authReady:false, firebaseUser:null, user:null, users:[], customers:[], contacts:[], calls:[], view:'dashboard', selId:null };
 let dashPeriod = 'day';
 let dashUserFilter = '';
-let cf = { search:'', status:'', pref:'', minE:'', maxE:'', res:'', assignee:'' };
+let cf = { search:'', status:'', pref:'', minE:'', maxE:'', res:'', assignee:'', rank:'' };
 let showAddC=false, editCid=null, showCallF=false, editUid=null, showAddU=false;
 let showAddContact=false, editContactId=null;
-let importPrev=[], importTxt='';
-let detailTab = 'info';
+let importPrev=[], importTxt='', importRank='';
+let detailTab = 'contacts';
 let assignViewUid = '';
-
-// ログイン画面モード: 'login' | 'reset'
 let loginMode = 'login';
-let loginMsg = null; // {type:'ok'|'err', text}
+let loginMsg = null;
 
 const ts = () => new Date().toISOString();
 const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const isUrl = s => /^https?:\/\/.+/.test((s||'').trim());
+const rankBadge = r => r ? `<span class="badge r-${r}">${r}ランク</span>` : `<span class="badge r-未設定">未設定</span>`;
 
 // ============================================================
-// Firebase Auth: 認証状態の監視
+// Firebase Auth
 // ============================================================
 onAuthStateChanged(auth, async (firebaseUser) => {
   st.firebaseUser = firebaseUser;
   st.authReady = true;
   if (firebaseUser) {
     await loadData();
-    // Firestoreのusersコレクションから対応するユーザー情報を取得
     st.user = st.users.find(u => u.uid === firebaseUser.uid) || null;
-    if (!st.user) {
-      // uidで見つからない場合はメールでフォールバック（移行期対応）
-      st.user = st.users.find(u => (u.email||'').toLowerCase() === (firebaseUser.email||'').toLowerCase()) || null;
-    }
+    if (!st.user) st.user = st.users.find(u => (u.email||'').toLowerCase() === (firebaseUser.email||'').toLowerCase()) || null;
     if (st.user && !assignViewUid) assignViewUid = st.user.id;
-  } else {
-    st.user = null;
-  }
+    if (!dashUserFilter && st.users[0]) dashUserFilter = st.users[0].id;
+  } else { st.user = null; }
   st.loaded = true;
   render();
 });
 
 async function loadData() {
-  const [us, cs, cts, hs] = await Promise.all([
-    getDocs(col('users')), getDocs(col('customers')),
-    getDocs(col('contacts')), getDocs(col('callHistory'))
-  ]);
-  st.users     = us.docs.map(d=>({id:d.id,...d.data()}));
-  st.customers = cs.docs.map(d=>({id:d.id,...d.data()}));
-  st.contacts  = cts.docs.map(d=>({id:d.id,...d.data()}));
-  st.calls     = hs.docs.map(d=>({id:d.id,...d.data()}));
+  const [us,cs,cts,hs] = await Promise.all([getDocs(col('users')),getDocs(col('customers')),getDocs(col('contacts')),getDocs(col('callHistory'))]);
+  st.users=us.docs.map(d=>({id:d.id,...d.data()}));
+  st.customers=cs.docs.map(d=>({id:d.id,...d.data()}));
+  st.contacts=cts.docs.map(d=>({id:d.id,...d.data()}));
+  st.calls=hs.docs.map(d=>({id:d.id,...d.data()}));
 }
-
-async function reload() {
-  await loadData();
-}
+async function reload() { await loadData(); }
 
 function toast(msg) {
-  const t=document.createElement('div'); t.className='toast'; t.textContent=msg;
-  document.body.appendChild(t); setTimeout(()=>t.remove(),2500);
+  const t=document.createElement('div');t.className='toast';t.textContent=msg;
+  document.body.appendChild(t);setTimeout(()=>t.remove(),2500);
 }
 
 function parseCSV(text) {
@@ -212,169 +197,110 @@ function parseCSV(text) {
   if(lines.length<2)return[];
   const hdrs=lines[0].split(',').map(h=>h.trim().replace(/^"|"$/g,''));
   return lines.slice(1).map(line=>{
-    const vals=[]; let cur='',inQ=false;
+    const vals=[];let cur='',inQ=false;
     for(const c of line){if(c==='"')inQ=!inQ;else if(c===','&&!inQ){vals.push(cur.trim());cur='';}else cur+=c;}
     vals.push(cur.trim());
-    const obj={}; hdrs.forEach((h,i)=>obj[h]=(vals[i]||'').replace(/^"|"$/g,''));
+    const obj={};hdrs.forEach((h,i)=>obj[h]=(vals[i]||'').replace(/^"|"$/g,''));
     return obj;
   });
 }
 
-// Firebaseエラーを日本語に変換
 function authErrMsg(code) {
-  const map = {
-    'auth/invalid-email': 'メールアドレスの形式が正しくありません',
-    'auth/user-not-found': 'このメールアドレスは登録されていません',
-    'auth/wrong-password': 'パスワードが間違っています',
-    'auth/invalid-credential': 'メールアドレスまたはパスワードが間違っています',
-    'auth/email-already-in-use': 'このメールアドレスは既に使用されています',
-    'auth/weak-password': 'パスワードは6文字以上で設定してください',
-    'auth/too-many-requests': 'ログイン試行が多すぎます。しばらく待ってからお試しください',
-    'auth/network-request-failed': 'ネットワークエラーが発生しました',
-  };
-  return map[code] || `エラーが発生しました（${code}）`;
+  const map={'auth/invalid-email':'メールアドレスの形式が正しくありません','auth/user-not-found':'このメールアドレスは登録されていません','auth/wrong-password':'パスワードが間違っています','auth/invalid-credential':'メールアドレスまたはパスワードが間違っています','auth/email-already-in-use':'このメールアドレスは既に使用されています','auth/weak-password':'パスワードは6文字以上で設定してください','auth/too-many-requests':'ログイン試行が多すぎます。しばらく待ってからお試しください'};
+  return map[code]||`エラーが発生しました（${code}）`;
 }
 
 // ============================================================
 // RENDER
 // ============================================================
 function render() {
-  const root = document.getElementById('root');
-  if (!st.authReady || !st.loaded) { root.innerHTML='<div class="loading">読み込み中...</div>'; return; }
-
-  // 認証済みだがFirestoreにユーザー情報がない場合（管理者初回登録）
-  if (st.firebaseUser && !st.user) {
-    root.innerHTML = rFirstSetup();
-    bFirstSetup();
-    return;
-  }
-
-  if (!st.firebaseUser) { root.innerHTML = rLogin(); bLogin(); return; }
-  root.innerHTML = rApp(); bApp();
+  const root=document.getElementById('root');
+  if(!st.authReady||!st.loaded){root.innerHTML='<div class="loading">読み込み中...</div>';return;}
+  if(st.firebaseUser&&!st.user){root.innerHTML=rFirstSetup();bFirstSetup();return;}
+  if(!st.firebaseUser){root.innerHTML=rLogin();bLogin();return;}
+  root.innerHTML=rApp();bApp();
 }
 
-// ============================================================
-// ログイン画面
-// ============================================================
+// ---- Login ----
 function rLogin() {
-  const isReset = loginMode === 'reset';
+  const isReset=loginMode==='reset';
   return `<div class="login-wrap"><div class="login-card">
-    <div class="login-title">テレアポSFA</div>
-    <div class="login-sub">${isReset ? 'パスワードリセットのメールを送信します' : 'メールアドレスとパスワードでログイン'}</div>
-    ${loginMsg ? `<div class="${loginMsg.type==='ok'?'ok-box':'err-box'}">${esc(loginMsg.text)}</div>` : ''}
-    <div style="margin-bottom:14px"><label>メールアドレス</label><input type="email" id="lemail" placeholder="example@gmail.com" autocomplete="email"></div>
-    ${!isReset ? `<div style="margin-bottom:20px"><label>パスワード</label><input type="password" id="lpass" placeholder="パスワード" autocomplete="current-password"></div>` : ''}
-    <button class="primary" id="lbtn" style="width:100%;padding:10px;font-size:14px">${isReset ? 'リセットメールを送信' : 'ログイン'}</button>
-    <div class="login-mode-link" id="lmode-link">${isReset ? '← ログインに戻る' : 'パスワードを忘れた方はこちら'}</div>
+  <div class="login-title">テレアポSFA</div>
+  <div class="login-sub">${isReset?'パスワードリセットのメールを送信します':'メールアドレスとパスワードでログイン'}</div>
+  ${loginMsg?`<div class="${loginMsg.type==='ok'?'ok-box':'err-box'}">${esc(loginMsg.text)}</div>`:''}
+  <div style="margin-bottom:14px"><label>メールアドレス</label><input type="email" id="lemail" placeholder="example@gmail.com" autocomplete="email"></div>
+  ${!isReset?`<div style="margin-bottom:20px"><label>パスワード</label><input type="password" id="lpass" placeholder="パスワード" autocomplete="current-password"></div>`:''}
+  <button class="primary" id="lbtn" style="width:100%;padding:10px;font-size:14px">${isReset?'リセットメールを送信':'ログイン'}</button>
+  <div class="login-mode-link" id="lmode-link">${isReset?'← ログインに戻る':'パスワードを忘れた方はこちら'}</div>
   </div></div>`;
 }
-
 function bLogin() {
-  document.getElementById('lmode-link').onclick = () => {
-    loginMode = loginMode === 'login' ? 'reset' : 'login';
-    loginMsg = null; render();
-  };
-
-  const doAction = async () => {
-    const btn = document.getElementById('lbtn');
-    const email = document.getElementById('lemail').value.trim();
-    if (!email) { loginMsg = {type:'err', text:'メールアドレスを入力してください'}; render(); return; }
-
-    btn.disabled = true;
-
-    if (loginMode === 'reset') {
-      try {
-        await sendPasswordResetEmail(auth, email);
-        loginMsg = {type:'ok', text:'パスワードリセットのメールを送信しました。メールを確認してください。'};
-        loginMode = 'login';
-      } catch(e) {
-        loginMsg = {type:'err', text: authErrMsg(e.code)};
-      }
-      render(); return;
+  document.getElementById('lmode-link').onclick=()=>{loginMode=loginMode==='login'?'reset':'login';loginMsg=null;render();};
+  const doAction=async()=>{
+    const btn=document.getElementById('lbtn');
+    const email=document.getElementById('lemail').value.trim();
+    if(!email){loginMsg={type:'err',text:'メールアドレスを入力してください'};render();return;}
+    btn.disabled=true;
+    if(loginMode==='reset'){
+      try{await sendPasswordResetEmail(auth,email);loginMsg={type:'ok',text:'パスワードリセットのメールを送信しました。'};loginMode='login';}
+      catch(e){loginMsg={type:'err',text:authErrMsg(e.code)};}
+      render();return;
     }
-
-    const pass = document.getElementById('lpass').value;
-    if (!pass) { loginMsg = {type:'err', text:'パスワードを入力してください'}; btn.disabled=false; return; }
-
-    try {
-      await signInWithEmailAndPassword(auth, email, pass);
-      loginMsg = null;
-      // onAuthStateChanged が自動でrenderを呼ぶ
-    } catch(e) {
-      loginMsg = {type:'err', text: authErrMsg(e.code)};
-      render();
-    }
+    const pass=document.getElementById('lpass').value;
+    if(!pass){loginMsg={type:'err',text:'パスワードを入力してください'};btn.disabled=false;return;}
+    try{await signInWithEmailAndPassword(auth,email,pass);loginMsg=null;}
+    catch(e){loginMsg={type:'err',text:authErrMsg(e.code)};render();}
   };
-
-  document.getElementById('lbtn').onclick = doAction;
-  const passEl = document.getElementById('lpass');
-  if (passEl) passEl.onkeydown = e => { if(e.key==='Enter') doAction(); };
-  const emailEl = document.getElementById('lemail');
-  if (emailEl) emailEl.onkeydown = e => { if(loginMode==='reset'&&e.key==='Enter') doAction(); };
+  document.getElementById('lbtn').onclick=doAction;
+  const p=document.getElementById('lpass');if(p)p.onkeydown=e=>{if(e.key==='Enter')doAction();};
+  const em=document.getElementById('lemail');if(em)em.onkeydown=e=>{if(loginMode==='reset'&&e.key==='Enter')doAction();};
 }
 
-// ============================================================
-// 初回セットアップ（Firebaseには認証済みだがusersコレクションにない場合）
-// ============================================================
+// ---- First Setup ----
 function rFirstSetup() {
   return `<div class="login-wrap"><div class="login-card">
-    <div class="login-title" style="font-size:18px">初回セットアップ</div>
-    <div class="login-sub">管理者アカウントを作成します</div>
-    <div id="fs-err" style="display:none" class="err-box"></div>
-    <div style="margin-bottom:12px"><label>表示名</label><input id="fs-name" placeholder="例：山田 太郎"></div>
-    <button class="primary" id="fs-save" style="width:100%;padding:10px">管理者として登録する</button>
-    <button id="fs-logout" style="width:100%;margin-top:10px">別のアカウントでログアウト</button>
+  <div class="login-title" style="font-size:18px">初回セットアップ</div>
+  <div class="login-sub">管理者アカウントを作成します</div>
+  <div id="fs-err" style="display:none" class="err-box"></div>
+  <div style="margin-bottom:12px"><label>表示名</label><input id="fs-name" placeholder="例：山田 太郎"></div>
+  <button class="primary" id="fs-save" style="width:100%;padding:10px">管理者として登録する</button>
+  <button id="fs-logout" style="width:100%;margin-top:10px">ログアウト</button>
   </div></div>`;
 }
-
 function bFirstSetup() {
-  document.getElementById('fs-logout').onclick = () => signOut(auth);
-  document.getElementById('fs-save').onclick = async () => {
-    const name = document.getElementById('fs-name').value.trim();
-    const errEl = document.getElementById('fs-err');
-    if (!name) { errEl.textContent='表示名を入力してください'; errEl.style.display='block'; return; }
-    const data = {
-      name, email: st.firebaseUser.email, uid: st.firebaseUser.uid,
-      role: 'admin', callTarget: 50, apoTarget: 5, createdAt: ts()
-    };
-    const r = await addDoc(col('users'), data);
-    st.users.push({id:r.id,...data});
-    st.user = {id:r.id,...data};
-    assignViewUid = r.id;
-    st.view = 'dashboard';
-    toast('管理者アカウントを作成しました');
-    render();
+  document.getElementById('fs-logout').onclick=()=>signOut(auth);
+  document.getElementById('fs-save').onclick=async()=>{
+    const name=document.getElementById('fs-name').value.trim();
+    const errEl=document.getElementById('fs-err');
+    if(!name){errEl.textContent='表示名を入力してください';errEl.style.display='block';return;}
+    const data={name,email:st.firebaseUser.email,uid:st.firebaseUser.uid,role:'admin',callTarget:50,apoTarget:5,createdAt:ts()};
+    const r=await addDoc(col('users'),data);
+    st.users.push({id:r.id,...data});st.user={id:r.id,...data};assignViewUid=r.id;
+    st.view='dashboard';toast('管理者アカウントを作成しました');render();
   };
 }
 
-// ============================================================
-// App Shell
-// ============================================================
+// ---- App Shell ----
 function rApp() {
-  const u = st.user;
-  const views = {dashboard:'ダッシュボード', customers:'顧客リスト', mylist:'マイリスト', import:'CSVインポート', settings:'設定'};
+  const u=st.user;
+  const views={dashboard:'ダッシュボード',customers:'顧客リスト',mylist:'マイリスト',import:'CSVインポート',settings:'設定'};
   return `<div class="nav"><div class="nav-inner">
-    <div class="nav-logo">テレアポSFA</div>
-    <div class="nav-tabs">${Object.entries(views).map(([v,l])=>`<button class="nav-tab${st.view===v?' active':''}" data-v="${v}">${l}</button>`).join('')}</div>
-    <div class="nav-user"><span>${esc(u.name)}${u.role==='admin'?' (管理者)':''}</span><button id="logout">ログアウト</button></div>
+  <div class="nav-logo">テレアポSFA</div>
+  <div class="nav-tabs">${Object.entries(views).map(([v,l])=>`<button class="nav-tab${st.view===v?' active':''}" data-v="${v}">${l}</button>`).join('')}</div>
+  <div class="nav-user"><span>${esc(u.name)}${u.role==='admin'?' (管理者)':''}</span><button id="logout">ログアウト</button></div>
   </div></div>
   <div id="app">
-    ${st.view==='dashboard'?rDash():''}
-    ${st.view==='customers'?rCustList():''}
-    ${st.view==='detail'?rDetail():''}
-    ${st.view==='mylist'?rMyList():''}
-    ${st.view==='import'?rImport():''}
-    ${st.view==='settings'?rSettings():''}
+  ${st.view==='dashboard'?rDash():''}
+  ${st.view==='customers'?rCustList():''}
+  ${st.view==='detail'?rDetail():''}
+  ${st.view==='mylist'?rMyList():''}
+  ${st.view==='import'?rImport():''}
+  ${st.view==='settings'?rSettings():''}
   </div>`;
 }
-
 function bApp() {
   document.querySelectorAll('.nav-tab').forEach(b=>b.onclick=()=>{st.view=b.dataset.v;render();});
-  document.getElementById('logout').onclick = async () => {
-    await signOut(auth);
-    st.user = null; st.view = 'dashboard';
-    loginMode = 'login'; loginMsg = null;
-  };
+  document.getElementById('logout').onclick=async()=>{await signOut(auth);st.user=null;st.view='dashboard';loginMode='login';loginMsg=null;};
   if(st.view==='dashboard')bDash();
   if(st.view==='customers')bCustList();
   if(st.view==='detail')bDetail();
@@ -387,24 +313,29 @@ function bApp() {
 // Dashboard
 // ============================================================
 function rDash() {
-  const now=new Date(), s=new Date();
+  const now=new Date(),s=new Date();
   if(dashPeriod==='day')s.setHours(0,0,0,0);
   else if(dashPeriod==='week')s.setDate(now.getDate()-7);
   else s.setMonth(now.getMonth()-1);
   const fc=st.calls.filter(c=>new Date(c.calledAt)>=s);
-  const sc={}; STATUSES.forEach(x=>sc[x]=0);
+  const sc={};STATUSES.forEach(x=>sc[x]=0);
   st.customers.forEach(c=>{const x=c.status||'未架電';if(sc[x]!==undefined)sc[x]++;});
   const pL={day:'本日',week:'週間',month:'月間'};
   const rows=st.users.map(u=>{
     const uc=fc.filter(c=>c.userId===u.id);
     const ap=uc.filter(c=>c.result==='アポ獲得').length;
-    const cd=uc.length-(u.callTarget||0), ad=ap-(u.apoTarget||0);
+    const cd=uc.length-(u.callTarget||0),ad=ap-(u.apoTarget||0);
     return `<tr><td>${esc(u.name)}</td>
     <td style="text-align:right">${uc.length}</td><td style="text-align:right;color:var(--c-text2)">${u.callTarget||0}</td>
     <td style="text-align:right" class="${cd>=0?'pos':'neg'}">${cd>=0?'+':''}${cd}</td>
     <td style="text-align:right">${ap}</td><td style="text-align:right;color:var(--c-text2)">${u.apoTarget||0}</td>
     <td style="text-align:right" class="${ad>=0?'pos':'neg'}">${ad>=0?'+':''}${ad}</td></tr>`;
   }).join('');
+  const uid=dashUserFilter||(st.users[0]&&st.users[0].id)||'';
+  const usc={};STATUSES.forEach(x=>usc[x]=0);
+  let assignedTotal=0;
+  st.customers.forEach(c=>{if(c.assigneeId===uid){const x=c.status||'未架電';if(usc[x]!==undefined)usc[x]++;assignedTotal++;}});
+
   return `<div class="ph"><div class="pt">ダッシュボード</div>
   <div class="ptabs">${['day','week','month'].map(p=>`<button class="ptab${dashPeriod===p?' active':''}" data-p="${p}">${pL[p]}</button>`).join('')}</div></div>
   <div class="stat-grid">
@@ -425,41 +356,34 @@ function rDash() {
   <div class="card">
     <div class="section-title">
       <span>ステータス別顧客数（ユーザー別）</span>
-      <select id="dash-user-sel" style="font-size:13px;padding:5px 10px;border-radius:var(--radius);border:1px solid var(--c-border);background:var(--c-bg);font-family:inherit;cursor:pointer;min-width:140px">
+      <select id="dash-user-sel" style="font-size:13px;padding:5px 10px;border-radius:var(--radius);border:1px solid var(--c-border);background:var(--c-bg);font-family:inherit;min-width:140px">
         ${st.users.map(u=>`<option value="${u.id}"${dashUserFilter===u.id?' selected':''}>${esc(u.name)}</option>`).join('')}
       </select>
     </div>
-    ${(()=>{
-      const uid = dashUserFilter || (st.users[0]&&st.users[0].id) || '';
-      const usc = {}; STATUSES.forEach(x=>usc[x]=0);
-      st.customers.filter(c=>c.assigneeId===uid).forEach(c=>{const x=c.status||'未架電';if(usc[x]!==undefined)usc[x]++;});
-      const total = st.customers.filter(c=>c.assigneeId===uid).length;
-      return `<div style="font-size:12px;color:var(--c-text2);margin-bottom:12px">担当顧客数：${total}件</div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px">
-        ${STATUSES.map(s=>`<div style="padding:12px;border-radius:8px" class="s-${s}"><div style="font-size:11px;margin-bottom:6px">${s}</div><div style="font-size:22px;font-weight:700">${usc[s]}</div></div>`).join('')}
-      </div>`;
-    })()}
+    <div style="font-size:12px;color:var(--c-text2);margin-bottom:12px">担当顧客数：${assignedTotal}件</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px">
+      ${STATUSES.map(s=>`<div style="padding:12px;border-radius:8px" class="s-${s}"><div style="font-size:11px;margin-bottom:6px">${s}</div><div style="font-size:22px;font-weight:700">${usc[s]}</div></div>`).join('')}
+    </div>
   </div>`;
 }
-function bDash(){
+function bDash() {
   document.querySelectorAll('.ptab').forEach(b=>b.onclick=()=>{dashPeriod=b.dataset.p;render();});
   const sel=document.getElementById('dash-user-sel');
-  if(sel){
-    if(!dashUserFilter&&st.users[0])dashUserFilter=st.users[0].id;
-    sel.onchange=()=>{dashUserFilter=sel.value;render();};
-  }
+  if(sel)sel.onchange=()=>{dashUserFilter=sel.value;render();};
 }
 
 // ============================================================
 // Customer List
 // ============================================================
 function rCustList() {
-  const fil = filteredC();
-  const userOpts = `<option value="">担当者（全て）</option>${st.users.map(u=>`<option value="${u.id}"${cf.assignee===u.id?' selected':''}>${esc(u.name)}</option>`).join('')}`;
+  const fil=filteredC();
+  const userOpts=`<option value="">担当者（全て）</option>${st.users.map(u=>`<option value="${u.id}"${cf.assignee===u.id?' selected':''}>${esc(u.name)}</option>`).join('')}`;
+  const rankOpts=`<option value="">ランク（全て）</option>${RANKS.map(r=>`<option value="${r}"${cf.rank===r?' selected':''}>${r}ランク</option>`).join('')}<option value="未設定"${cf.rank==='未設定'?' selected':''}>未設定</option>`;
   return `<div class="ph"><div class="pt">顧客リスト（${fil.length}件）</div><button class="primary" id="add-c">+ 新規追加</button></div>
   <div class="filter-bar">
     <input id="fs" placeholder="会社名・電話番号" value="${esc(cf.search)}">
     <select id="fst"><option value="">ステータス（全て）</option>${STATUSES.map(s=>`<option value="${s}"${cf.status===s?' selected':''}>${s}</option>`).join('')}</select>
+    <select id="frk">${rankOpts}</select>
     <input id="fp" placeholder="都道府県" value="${esc(cf.pref)}">
     <select id="fa">${userOpts}</select>
     <select id="fr"><option value="">架電結果（全て）</option>${CALL_RESULTS.map(r=>`<option value="${r}"${cf.res===r?' selected':''}>${r}</option>`).join('')}</select>
@@ -469,21 +393,21 @@ function rCustList() {
   </div>
   ${showAddC?rCustForm(null):''}
   <div class="tw"><table><thead><tr>
-    <th>会社名</th><th>電話番号</th><th>地域</th><th style="text-align:right">従業員数</th><th>ステータス</th><th>担当者</th>
+    <th>会社名</th><th>電話番号</th><th>地域</th><th style="text-align:right">従業員数</th><th>ランク</th><th>ステータス</th><th>担当者</th>
   </tr></thead><tbody>
-  ${fil.length===0?`<tr><td colspan="6" style="text-align:center;color:var(--c-text3);padding:32px">顧客データがありません</td></tr>`:
-  fil.map(c=>{
-    return `<tr class="row" data-id="${c.id}">
+  ${fil.length===0?`<tr><td colspan="7" style="text-align:center;color:var(--c-text3);padding:32px">顧客データがありません</td></tr>`:
+  fil.map(c=>`<tr class="row" data-id="${c.id}">
     <td><strong>${esc(c.companyName)}</strong></td>
     <td>${esc(c.companyPhone||'-')}</td>
     <td style="color:var(--c-text2)">${esc([c.prefecture,c.city].filter(Boolean).join(' ')||'-')}</td>
     <td style="text-align:right">${c.employees?parseInt(c.employees).toLocaleString()+' 名':'-'}</td>
+    <td>${rankBadge(c.rank)}</td>
     <td><span class="badge s-${c.status||'未架電'}">${c.status||'未架電'}</span></td>
     <td><select class="assign-select" data-cid="${c.id}" onclick="event.stopPropagation()">
       <option value="">未割り当て</option>
       ${st.users.map(u=>`<option value="${u.id}"${c.assigneeId===u.id?' selected':''}>${esc(u.name)}</option>`).join('')}
     </select></td>
-  </tr>`;}).join('')}
+  </tr>`).join('')}
   </tbody></table></div>`;
 }
 
@@ -497,32 +421,34 @@ function filteredC() {
     if(cf.maxE&&(parseInt(c.employees)||0)>parseInt(cf.maxE))return false;
     if(cf.res){const calls=st.calls.filter(h=>h.customerId===c.id);if(!calls.some(h=>h.result===cf.res))return false;}
     if(cf.assignee&&c.assigneeId!==cf.assignee)return false;
+    if(cf.rank){const cr=c.rank||'未設定';if(cf.rank==='未設定'?cr!=='未設定':cr!==cf.rank)return false;}
     return true;
   });
 }
 
 function bCustList() {
   const bind=(id,key)=>{const el=document.getElementById(id);if(!el)return;el.addEventListener('input',()=>{cf[key]=el.value;render();});el.addEventListener('change',()=>{cf[key]=el.value;render();});};
-  bind('fs','search');bind('fst','status');bind('fp','pref');bind('fr','res');bind('fmn','minE');bind('fmx','maxE');bind('fa','assignee');
-  document.getElementById('fclr').onclick=()=>{cf={search:'',status:'',pref:'',minE:'',maxE:'',res:'',assignee:''};render();};
+  bind('fs','search');bind('fst','status');bind('fp','pref');bind('fr','res');bind('fmn','minE');bind('fmx','maxE');bind('fa','assignee');bind('frk','rank');
+  document.getElementById('fclr').onclick=()=>{cf={search:'',status:'',pref:'',minE:'',maxE:'',res:'',assignee:'',rank:''};render();};
   document.getElementById('add-c').onclick=()=>{showAddC=!showAddC;render();};
-  document.querySelectorAll('tr.row[data-id]').forEach(tr=>tr.onclick=()=>{st.selId=tr.dataset.id;st.view='detail';detailTab='info';showCallF=false;editCid=null;showAddContact=false;editContactId=null;render();});
+  document.querySelectorAll('tr.row[data-id]').forEach(tr=>tr.onclick=()=>{st.selId=tr.dataset.id;st.view='detail';detailTab='contacts';showCallF=false;editCid=null;showAddContact=false;editContactId=null;render();});
   document.querySelectorAll('.assign-select').forEach(sel=>{
     sel.onchange=async e=>{
-      const cid=sel.dataset.cid;
-      const val=e.target.value;
+      const cid=sel.dataset.cid,val=e.target.value;
       await updateDoc(ref('customers',cid),{assigneeId:val});
-      const c=st.customers.find(x=>x.id===cid);
-      if(c)c.assigneeId=val;
+      const c=st.customers.find(x=>x.id===cid);if(c)c.assigneeId=val;
       toast('担当者を更新しました');
     };
   });
   bCustForm(null);
 }
 
-// ---- Customer Form ----
+// ============================================================
+// Customer Form（ランク・更新回数追加）
+// ============================================================
 function rCustForm(c) {
   const v=c||{};
+  const rankOpts=`<option value="">未設定</option>${RANKS.map(r=>`<option value="${r}"${v.rank===r?' selected':''}>${r}ランク</option>`).join('')}`;
   return `<div class="card" id="cform"><div class="section-title">${c?'顧客情報を編集':'新規顧客追加'}</div>
   <div class="fg2">
     <div><label>会社名 *</label><input id="cf-cn" value="${esc(v.companyName||'')}"></div>
@@ -531,12 +457,13 @@ function rCustForm(c) {
     <div><label>HP（URL）</label><input id="cf-ws" value="${esc(v.website||'')}"></div>
     <div><label>従業員数</label><input id="cf-em" type="number" value="${esc(v.employees||'')}"></div>
     <div><label>資本金（円）</label><input id="cf-ca" type="number" value="${esc(v.capital||'')}"></div>
+    <div><label>更新回数</label><input id="cf-re" type="number" value="${esc(v.renewalCount||'')}"></div>
     <div><label>都道府県</label><input id="cf-pf" value="${esc(v.prefecture||'')}"></div>
     <div><label>市区町村</label><input id="cf-ct" value="${esc(v.city||'')}"></div>
+    <div><label>ランク</label><select id="cf-rk">${rankOpts}</select></div>
   </div>
   <div class="fa"><button id="cf-cancel">キャンセル</button><button class="primary" id="cf-save">保存</button></div></div>`;
 }
-
 function getCustFormData() {
   return {
     companyName:document.getElementById('cf-cn').value.trim(),
@@ -545,11 +472,12 @@ function getCustFormData() {
     website:document.getElementById('cf-ws').value.trim(),
     employees:document.getElementById('cf-em').value,
     capital:document.getElementById('cf-ca').value,
+    renewalCount:document.getElementById('cf-re').value,
     prefecture:document.getElementById('cf-pf').value.trim(),
     city:document.getElementById('cf-ct').value.trim(),
+    rank:document.getElementById('cf-rk').value,
   };
 }
-
 function bCustForm(customer) {
   const cancelEl=document.getElementById('cf-cancel');
   if(cancelEl)cancelEl.onclick=()=>{showAddC=false;editCid=null;render();};
@@ -559,37 +487,42 @@ function bCustForm(customer) {
     if(!data.companyName){alert('会社名は必須です');return;}
     if(customer){
       await updateDoc(ref('customers',customer.id),data);
-      Object.assign(customer,data); editCid=null; toast('更新しました');
+      Object.assign(customer,data);editCid=null;toast('更新しました');
     } else {
-      data.status='未架電'; data.assigneeId=''; data.createdAt=ts();
+      data.status='未架電';data.assigneeId='';data.createdAt=ts();
       const r=await addDoc(col('customers'),data);
-      st.customers.push({id:r.id,...data}); showAddC=false; toast('追加しました');
+      st.customers.push({id:r.id,...data});showAddC=false;toast('追加しました');
     }
-    await reload(); render();
+    await reload();render();
   };
 }
 
 // ============================================================
-// Customer Detail
+// Customer Detail（ランク・更新回数表示）
 // ============================================================
 function rDetail() {
   const c=st.customers.find(x=>x.id===st.selId);
   if(!c)return`<div class="loading">顧客が見つかりません</div>`;
   const contacts=st.contacts.filter(x=>x.customerId===c.id);
   const calls=st.calls.filter(x=>x.customerId===c.id).sort((a,b)=>new Date(b.calledAt)-new Date(a.calledAt));
-
+  const rankOpts=`<option value="">未設定</option>${RANKS.map(r=>`<option value="${r}"${c.rank===r?' selected':''}>${r}ランク</option>`).join('')}`;
   return `<div style="margin:24px 0 16px;display:flex;gap:8px;align-items:center">
   <button id="back">← 戻る</button>
   ${editCid!==c.id?`<button id="edit-c">編集</button><button class="danger" id="del-c">削除</button>`:''}
   </div>
   ${editCid===c.id?rCustForm(c):`
   <div class="card">
-    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;flex-wrap:wrap;gap:10px">
       <div>
-        <div style="font-size:22px;font-weight:700;margin-bottom:4px">${esc(c.companyName)}</div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
+          <div style="font-size:22px;font-weight:700">${esc(c.companyName)}</div>
+          ${rankBadge(c.rank)}
+        </div>
         <div style="font-size:13px;color:var(--c-text2)">${esc([c.prefecture,c.city].filter(Boolean).join(' '))}</div>
       </div>
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <label style="margin:0;white-space:nowrap">ランク:</label>
+        <select id="rank-sel">${rankOpts}</select>
         <label style="margin:0;white-space:nowrap">ステータス:</label>
         <select id="sts">${STATUSES.map(s=>`<option value="${s}"${c.status===s?' selected':''}>${s}</option>`).join('')}</select>
         <label style="margin:0;white-space:nowrap">担当:</label>
@@ -605,9 +538,9 @@ function rDetail() {
       <div class="info-row"><span class="info-label">HP</span><span>${c.website?`<a href="${esc(c.website)}" target="_blank">${esc(c.website)}</a>`:'-'}</span></div>
       <div class="info-row"><span class="info-label">従業員数</span><span>${c.employees?parseInt(c.employees).toLocaleString()+'名':'-'}</span></div>
       <div class="info-row"><span class="info-label">資本金</span><span>${c.capital?parseInt(c.capital).toLocaleString()+'円':'-'}</span></div>
+      <div class="info-row"><span class="info-label">更新回数</span><span>${c.renewalCount||'-'}</span></div>
     </div>
   </div>`}
-
   <div class="tabs">
     <button class="tab${detailTab==='contacts'?' active':''}" data-tab="contacts">担当者情報（${contacts.length}）</button>
     <button class="tab${detailTab==='calls'?' active':''}" data-tab="calls">架電履歴（${calls.length}）</button>
@@ -616,7 +549,7 @@ function rDetail() {
   ${detailTab==='calls'?rCallsTab(c,calls):''}`;
 }
 
-function rContactsTab(c, contacts) {
+function rContactsTab(c,contacts) {
   return `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
   <div style="font-size:14px;font-weight:600">担当者一覧</div>
   <button class="primary sm" id="add-contact-btn">+ 担当者を追加</button>
@@ -627,10 +560,8 @@ function rContactsTab(c, contacts) {
     :contacts.map(ct=>editContactId===ct.id?rContactForm(c,ct):`
     <div class="contact-card">
       <div class="contact-header">
-        <div>
-          <div class="contact-name">${esc(ct.name||'-')}</div>
-          <div class="contact-sub">${[ct.department,ct.position].filter(Boolean).map(esc).join(' / ')||''}</div>
-        </div>
+        <div><div class="contact-name">${esc(ct.name||'-')}</div>
+        <div class="contact-sub">${[ct.department,ct.position].filter(Boolean).map(esc).join(' / ')||''}</div></div>
         <div style="display:flex;gap:6px">
           <button class="sm edit-contact-btn" data-ctid="${ct.id}">編集</button>
           <button class="sm danger del-contact-btn" data-ctid="${ct.id}">削除</button>
@@ -646,7 +577,7 @@ function rContactsTab(c, contacts) {
     </div>`).join('')}`;
 }
 
-function rContactForm(c, ct) {
+function rContactForm(c,ct) {
   const v=ct||{};
   return `<div class="card" style="margin-bottom:12px">
   <div style="font-size:14px;font-weight:600;margin-bottom:12px">${ct?'担当者を編集':'担当者を追加'}</div>
@@ -658,13 +589,10 @@ function rContactForm(c, ct) {
     <div><label>役職</label><input id="ct-pos" value="${esc(v.position||'')}"></div>
   </div>
   <div style="margin-top:10px"><label>備考</label><textarea id="ct-note" rows="2">${esc(v.note||'')}</textarea></div>
-  <div class="fa">
-    <button id="ct-cancel">キャンセル</button>
-    <button class="primary" id="ct-save" data-ctid="${ct?ct.id:''}">保存</button>
-  </div></div>`;
+  <div class="fa"><button id="ct-cancel">キャンセル</button><button class="primary" id="ct-save" data-ctid="${ct?ct.id:''}">保存</button></div></div>`;
 }
 
-function rCallsTab(c, calls) {
+function rCallsTab(c,calls) {
   return `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
   <div style="font-size:14px;font-weight:600">架電履歴</div>
   <button class="primary sm" id="add-call">+ 架電記録を追加</button>
@@ -686,7 +614,7 @@ function rCallsTab(c, calls) {
 }
 
 function rCallForm() {
-  const now=new Date(), iso=new Date(now.getTime()-now.getTimezoneOffset()*60000).toISOString().slice(0,16);
+  const now=new Date(),iso=new Date(now.getTime()-now.getTimezoneOffset()*60000).toISOString().slice(0,16);
   return `<div class="card" style="margin-bottom:14px">
   <div style="font-size:14px;font-weight:600;margin-bottom:12px">架電記録を追加</div>
   <div class="fg2">
@@ -702,70 +630,54 @@ function rCallForm() {
 }
 
 function bDetail() {
-  const c=st.customers.find(x=>x.id===st.selId); if(!c)return;
+  const c=st.customers.find(x=>x.id===st.selId);if(!c)return;
   document.getElementById('back').onclick=()=>{st.view='customers';editCid=null;showCallF=false;showAddContact=false;editContactId=null;render();};
   document.querySelectorAll('.tab[data-tab]').forEach(b=>b.onclick=()=>{detailTab=b.dataset.tab;showCallF=false;showAddContact=false;editContactId=null;render();});
-  const elEditC=document.getElementById('edit-c');
-  if(elEditC)elEditC.onclick=()=>{editCid=c.id;render();};
+  const elEditC=document.getElementById('edit-c');if(elEditC)elEditC.onclick=()=>{editCid=c.id;render();};
   const elDelC=document.getElementById('del-c');
   if(elDelC)elDelC.onclick=async()=>{
     if(!confirm(`「${c.companyName}」を削除しますか？担当者・架電履歴も全て削除されます。`))return;
     await deleteDoc(ref('customers',c.id));
-    const relCalls=st.calls.filter(h=>h.customerId===c.id);
-    const relContacts=st.contacts.filter(ct=>ct.customerId===c.id);
-    await Promise.all([...relCalls.map(h=>deleteDoc(ref('callHistory',h.id))),...relContacts.map(ct=>deleteDoc(ref('contacts',ct.id)))]);
-    st.customers=st.customers.filter(x=>x.id!==c.id);
-    st.calls=st.calls.filter(x=>x.customerId!==c.id);
-    st.contacts=st.contacts.filter(x=>x.customerId!==c.id);
-    st.view='customers'; toast('削除しました'); render();
+    const rC=st.calls.filter(h=>h.customerId===c.id),rCt=st.contacts.filter(ct=>ct.customerId===c.id);
+    await Promise.all([...rC.map(h=>deleteDoc(ref('callHistory',h.id))),...rCt.map(ct=>deleteDoc(ref('contacts',ct.id)))]);
+    st.customers=st.customers.filter(x=>x.id!==c.id);st.calls=st.calls.filter(x=>x.customerId!==c.id);st.contacts=st.contacts.filter(x=>x.customerId!==c.id);
+    st.view='customers';toast('削除しました');render();
   };
+  const elRank=document.getElementById('rank-sel');
+  if(elRank)elRank.onchange=async e=>{await updateDoc(ref('customers',c.id),{rank:e.target.value});c.rank=e.target.value;toast('ランクを更新しました');render();};
   const elSts=document.getElementById('sts');
-  if(elSts)elSts.onchange=async e=>{await updateDoc(ref('customers',c.id),{status:e.target.value});c.status=e.target.value;toast('ステータス更新しました');};
+  if(elSts)elSts.onchange=async e=>{await updateDoc(ref('customers',c.id),{status:e.target.value});c.status=e.target.value;toast('ステータスを更新しました');};
   const elAss=document.getElementById('assignee-sel');
   if(elAss)elAss.onchange=async e=>{await updateDoc(ref('customers',c.id),{assigneeId:e.target.value});c.assigneeId=e.target.value;toast('担当者を更新しました');};
-  const elAddCt=document.getElementById('add-contact-btn');
-  if(elAddCt)elAddCt.onclick=()=>{showAddContact=true;editContactId=null;render();};
-  const elCtCancel=document.getElementById('ct-cancel');
-  if(elCtCancel)elCtCancel.onclick=()=>{showAddContact=false;editContactId=null;render();};
+  const elAddCt=document.getElementById('add-contact-btn');if(elAddCt)elAddCt.onclick=()=>{showAddContact=true;editContactId=null;render();};
+  const elCtCancel=document.getElementById('ct-cancel');if(elCtCancel)elCtCancel.onclick=()=>{showAddContact=false;editContactId=null;render();};
   const elCtSave=document.getElementById('ct-save');
   if(elCtSave)elCtSave.onclick=async()=>{
-    const name=document.getElementById('ct-nm').value.trim();
-    if(!name){alert('担当者名は必須です');return;}
+    const name=document.getElementById('ct-nm').value.trim();if(!name){alert('担当者名は必須です');return;}
     const data={customerId:c.id,name,phone:document.getElementById('ct-ph').value.trim(),email:document.getElementById('ct-em').value.trim(),department:document.getElementById('ct-dep').value.trim(),position:document.getElementById('ct-pos').value.trim(),note:document.getElementById('ct-note').value.trim()};
     const ctid=elCtSave.dataset.ctid;
-    if(ctid){
-      await updateDoc(ref('contacts',ctid),data);
-      const idx=st.contacts.findIndex(x=>x.id===ctid);if(idx>=0)st.contacts[idx]={...st.contacts[idx],...data};
-      editContactId=null; toast('更新しました');
-    } else {
-      data.createdAt=ts();const r=await addDoc(col('contacts'),data);
-      st.contacts.push({id:r.id,...data}); showAddContact=false; toast('担当者を追加しました');
-    }
+    if(ctid){await updateDoc(ref('contacts',ctid),data);const idx=st.contacts.findIndex(x=>x.id===ctid);if(idx>=0)st.contacts[idx]={...st.contacts[idx],...data};editContactId=null;toast('更新しました');}
+    else{data.createdAt=ts();const r=await addDoc(col('contacts'),data);st.contacts.push({id:r.id,...data});showAddContact=false;toast('担当者を追加しました');}
     render();
   };
   document.querySelectorAll('.edit-contact-btn').forEach(b=>b.onclick=()=>{editContactId=b.dataset.ctid;showAddContact=false;render();});
   document.querySelectorAll('.del-contact-btn').forEach(b=>b.onclick=async()=>{
     if(!confirm('この担当者を削除しますか？'))return;
-    await deleteDoc(ref('contacts',b.dataset.ctid));
-    st.contacts=st.contacts.filter(x=>x.id!==b.dataset.ctid); toast('削除しました'); render();
+    await deleteDoc(ref('contacts',b.dataset.ctid));st.contacts=st.contacts.filter(x=>x.id!==b.dataset.ctid);toast('削除しました');render();
   });
-  const elAddCall=document.getElementById('add-call');
-  if(elAddCall)elAddCall.onclick=()=>{showCallF=true;render();};
-  const elHCancel=document.getElementById('h-cancel');
-  if(elHCancel)elHCancel.onclick=()=>{showCallF=false;render();};
+  const elAddCall=document.getElementById('add-call');if(elAddCall)elAddCall.onclick=()=>{showCallF=true;render();};
+  const elHCancel=document.getElementById('h-cancel');if(elHCancel)elHCancel.onclick=()=>{showCallF=false;render();};
   const elHSave=document.getElementById('h-save');
   if(elHSave)elHSave.onclick=async()=>{
     const data={customerId:c.id,userId:st.user.id,calledAt:document.getElementById('h-dt').value,result:document.getElementById('h-res').value,memo:document.getElementById('h-memo').value.trim(),nextActionAt:document.getElementById('h-nat').value,nextActionContent:document.getElementById('h-nac').value.trim(),createdAt:ts()};
-    const r=await addDoc(col('callHistory'),data); st.calls.push({id:r.id,...data});
+    const r=await addDoc(col('callHistory'),data);st.calls.push({id:r.id,...data});
     if(data.result==='アポ獲得'&&(c.status==='未架電'||c.status==='架電済')){await updateDoc(ref('customers',c.id),{status:'アポ獲得'});c.status='アポ獲得';}
     else if(c.status==='未架電'){await updateDoc(ref('customers',c.id),{status:'架電済'});c.status='架電済';}
-    showCallF=false; toast('架電記録を保存しました'); render();
+    showCallF=false;toast('架電記録を保存しました');render();
   };
   document.querySelectorAll('.del-call').forEach(b=>b.onclick=async e=>{
-    e.stopPropagation();
-    if(!confirm('この架電記録を削除しますか？'))return;
-    await deleteDoc(ref('callHistory',b.dataset.cid));
-    st.calls=st.calls.filter(x=>x.id!==b.dataset.cid); toast('削除しました'); render();
+    e.stopPropagation();if(!confirm('この架電記録を削除しますか？'))return;
+    await deleteDoc(ref('callHistory',b.dataset.cid));st.calls=st.calls.filter(x=>x.id!==b.dataset.cid);toast('削除しました');render();
   });
   bCustForm(editCid?c:null);
 }
@@ -774,8 +686,8 @@ function bDetail() {
 // My List
 // ============================================================
 function rMyList() {
-  const viewUser = st.users.find(u=>u.id===assignViewUid) || st.user;
-  const assigned = st.customers.filter(c=>c.assigneeId===viewUser.id);
+  const viewUser=st.users.find(u=>u.id===assignViewUid)||st.user;
+  const assigned=st.customers.filter(c=>c.assigneeId===viewUser.id);
   return `<div class="ph"><div class="pt">マイリスト</div></div>
   <div style="margin-bottom:16px">
     <div style="font-size:12px;color:var(--c-text2);margin-bottom:8px">表示するユーザーを選択：</div>
@@ -785,81 +697,120 @@ function rMyList() {
   </div>
   <div style="font-size:14px;font-weight:600;margin-bottom:12px">${esc(viewUser.name)} の割り当てリスト（${assigned.length}件）</div>
   <div class="tw"><table><thead><tr>
-    <th>会社名</th><th>電話番号</th><th>地域</th><th>ステータス</th>
+    <th>会社名</th><th>電話番号</th><th>地域</th><th>ランク</th><th>ステータス</th>
   </tr></thead><tbody>
   ${assigned.length===0
-    ?`<tr><td colspan="4" style="text-align:center;color:var(--c-text3);padding:32px">割り当てられた顧客がありません</td></tr>`
+    ?`<tr><td colspan="5" style="text-align:center;color:var(--c-text3);padding:32px">割り当てられた顧客がありません</td></tr>`
     :assigned.map(c=>`<tr class="row" data-id="${c.id}">
     <td><strong>${esc(c.companyName)}</strong></td>
     <td>${esc(c.companyPhone||'-')}</td>
     <td style="color:var(--c-text2)">${esc([c.prefecture,c.city].filter(Boolean).join(' ')||'-')}</td>
+    <td>${rankBadge(c.rank)}</td>
     <td><span class="badge s-${c.status||'未架電'}">${c.status||'未架電'}</span></td>
   </tr>`).join('')}
   </tbody></table></div>`;
 }
-
 function bMyList() {
   document.querySelectorAll('.user-chip[data-uid]').forEach(b=>b.onclick=()=>{assignViewUid=b.dataset.uid;render();});
-  document.querySelectorAll('tr.row[data-id]').forEach(tr=>tr.onclick=()=>{st.selId=tr.dataset.id;st.view='detail';detailTab='info';showCallF=false;editCid=null;showAddContact=false;editContactId=null;render();});
+  document.querySelectorAll('tr.row[data-id]').forEach(tr=>tr.onclick=()=>{st.selId=tr.dataset.id;st.view='detail';detailTab='contacts';showCallF=false;editCid=null;showAddContact=false;editContactId=null;render();});
 }
 
 // ============================================================
-// Import
+// Import（新CSVフォーマット対応）
 // ============================================================
 function rImport() {
+  const rankOpts=`<option value="">未設定（ランクなし）</option>${RANKS.map(r=>`<option value="${r}"${importRank===r?' selected':''}>${r}ランク</option>`).join('')}`;
   return `<div class="ph"><div class="pt">CSVインポート</div></div>
   <div class="card">
     <div style="background:var(--c-blue-bg);color:var(--c-blue-text);padding:12px 16px;border-radius:var(--radius);margin-bottom:16px;font-size:12px">
-      <div style="font-weight:600;margin-bottom:4px">CSVフォーマット（1行目はヘッダー行）</div>
-      会社名, 電話番号（会社）, メールアドレス（会社）, HP（URL）, 従業員数, 資本金, 都道府県, 市区町村
+      <div style="font-weight:600;margin-bottom:6px">対応CSVフォーマット（1行目はヘッダー行・列順不問）</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:4px 16px;margin-top:6px">
+        <div>・<strong>商号又は名称</strong> → 会社名</div>
+        <div>・<strong>電話番号</strong> → 会社電話</div>
+        <div>・<strong>メールアドレス</strong> → 会社メール</div>
+        <div>・<strong>会社URL</strong> → HP（http/httpsのみ取込）</div>
+        <div>・<strong>従業員数</strong> → 従業員数</div>
+        <div>・<strong>更新回数</strong> → 更新回数</div>
+        <div>・<strong>都道府県</strong>（M列）→ 都道府県</div>
+        <div>・<strong>エリア</strong>（G列）→ 市区町村</div>
+      </div>
     </div>
-    <div style="margin-bottom:14px"><label>CSVファイルを選択</label><input type="file" id="csv-file" accept=".csv" style="padding:6px"></div>
-    <div style="margin-bottom:14px"><label>またはCSVを直接貼り付け</label><textarea id="csv-txt" rows="8" style="font-family:monospace;font-size:12px" placeholder="ここにCSVデータを貼り付け...">${esc(importTxt)}</textarea></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;align-items:end">
+      <div><label>CSVファイルを選択</label><input type="file" id="csv-file" accept=".csv" style="padding:6px"></div>
+      <div><label>インポート時のランク（任意・一括設定）</label><select id="imp-rank">${rankOpts}</select></div>
+    </div>
+    <div style="margin-bottom:14px"><label>またはCSVを直接貼り付け</label><textarea id="csv-txt" rows="6" style="font-family:monospace;font-size:12px" placeholder="ここにCSVデータを貼り付け...">${esc(importTxt)}</textarea></div>
     <div style="display:flex;gap:10px;margin-bottom:14px">
       <button id="csv-prev">プレビュー確認</button>
       ${importPrev.length>0?`<button class="primary" id="csv-imp">${importPrev.length}件をインポート</button>`:''}
     </div>
-    ${importPrev.length>0?`<div class="tw"><table><thead><tr><th>会社名</th><th>会社電話</th><th>地域</th></tr></thead><tbody>
-    ${importPrev.slice(0,30).map(r=>`<tr><td>${esc(r['会社名']||'')}</td><td>${esc(r['電話番号（会社）']||'')}</td><td>${esc((r['都道府県']||'')+' '+(r['市区町村']||''))}</td></tr>`).join('')}
+    ${importPrev.length>0?`
+    <div style="font-size:12px;color:var(--c-text2);margin-bottom:8px">先頭30件プレビュー（URLでない場合HPは空欄になります）</div>
+    <div class="tw"><table><thead><tr><th>会社名</th><th>電話番号</th><th>都道府県</th><th>市区町村</th><th>従業員数</th><th>更新回数</th><th>HP</th></tr></thead><tbody>
+    ${importPrev.slice(0,30).map(r=>{
+      const url=r['会社URL']||r['HP（URL）']||r['HP']||'';
+      const urlOk=isUrl(url);
+      return `<tr>
+        <td>${esc(r['商号又は名称']||r['会社名']||'')}</td>
+        <td>${esc(r['電話番号']||r['電話番号（会社）']||'')}</td>
+        <td>${esc(r['都道府県']||'')}</td>
+        <td>${esc(r['エリア']||r['市区町村']||'')}</td>
+        <td>${esc(r['従業員数']||'')}</td>
+        <td>${esc(r['更新回数']||'')}</td>
+        <td style="color:${urlOk?'inherit':'var(--c-text3)'}">${urlOk?esc(url):'（空欄）'}</td>
+      </tr>`;
+    }).join('')}
     </tbody></table></div>`:''}
   </div>`;
 }
-
 function bImport() {
   document.getElementById('csv-file').onchange=e=>{
     const f=e.target.files[0];if(!f)return;
-    const rd=new FileReader();rd.onload=ev=>{importTxt=ev.target.result;document.getElementById('csv-txt').value=importTxt;};
+    const rd=new FileReader();
+    rd.onload=ev=>{importTxt=ev.target.result;document.getElementById('csv-txt').value=importTxt;};
     rd.readAsText(f,'UTF-8');
   };
+  const rankSel=document.getElementById('imp-rank');
+  if(rankSel)rankSel.onchange=()=>{importRank=rankSel.value;};
   document.getElementById('csv-prev').onclick=()=>{
     importTxt=document.getElementById('csv-txt').value;
+    importRank=document.getElementById('imp-rank').value;
     importPrev=parseCSV(importTxt);
     if(!importPrev.length){alert('データが見つかりません');return;}
     render();
   };
   const elImp=document.getElementById('csv-imp');
   if(elImp)elImp.onclick=async()=>{
-    const items=importPrev.map(r=>({
-      companyName:r['会社名']||'',companyPhone:r['電話番号（会社）']||'',companyEmail:r['メールアドレス（会社）']||'',
-      website:r['HP（URL）']||r['HP']||'',employees:r['従業員数']||'',capital:r['資本金']||'',
-      prefecture:r['都道府県']||'',city:r['市区町村']||'',status:'未架電',assigneeId:'',createdAt:ts()
-    })).filter(x=>x.companyName);
+    elImp.disabled=true;elImp.textContent='インポート中...';
+    const items=importPrev.map(r=>{
+      const url=r['会社URL']||r['HP（URL）']||r['HP']||'';
+      return {
+        companyName: r['商号又は名称']||r['会社名']||'',
+        companyPhone: r['電話番号']||r['電話番号（会社）']||'',
+        companyEmail: r['メールアドレス']||r['メールアドレス（会社）']||'',
+        website: isUrl(url)?url.trim():'',
+        employees: r['従業員数']||'',
+        renewalCount: r['更新回数']||'',
+        prefecture: r['都道府県']||'',
+        city: r['エリア']||r['市区町村']||'',
+        rank: importRank||'',
+        status:'未架電', assigneeId:'', createdAt:ts()
+      };
+    }).filter(x=>x.companyName);
     for(const item of items){const r=await addDoc(col('customers'),item);st.customers.push({id:r.id,...item});}
-    importPrev=[];importTxt='';toast(`${items.length}件をインポートしました`);
+    importPrev=[];importTxt='';importRank='';
+    toast(`${items.length}件をインポートしました`);
     await reload();st.view='customers';render();
   };
 }
 
 // ============================================================
-// Settings（ユーザー管理 + Firebase Auth連携）
+// Settings
 // ============================================================
 function rSettings() {
   if(st.user.role!=='admin')return`<div class="ph"><div class="pt">設定</div></div><div class="card" style="text-align:center;color:var(--c-text2);padding:40px">管理者のみアクセス可能です</div>`;
   return `<div class="ph"><div class="pt">設定 — ユーザー管理</div><button class="primary" id="add-u">+ ユーザー追加</button></div>
-  <div class="anote">
-    ユーザーを追加するとFirebase Authenticationにアカウントが作成され、登録メールアドレス宛にパスワード設定メールが送られます。<br>
-    ユーザーは届いたメールでパスワードを設定し、このページからログインします。
-  </div>
+  <div class="anote">ユーザーを追加するとFirebase Authenticationにアカウントが作成されます。設定したメール・パスワードでログインできます。</div>
   ${showAddU?rUserForm(null):''}
   <div class="tw"><table><thead><tr>
     <th>名前</th><th>メールアドレス</th><th>権限</th><th style="text-align:right">架電目標/日</th><th style="text-align:right">アポ目標/日</th><th style="text-align:right">操作</th>
@@ -874,103 +825,57 @@ function rSettings() {
   </td></tr>`).join('')}
   </tbody></table></div>`;
 }
-
 function rUserForm(u) {
-  const v=u||{};
-  const isNew = !u;
+  const v=u||{};const isNew=!u;
   return `<div class="card" style="margin-bottom:14px">
   <div style="font-size:14px;font-weight:600;margin-bottom:12px">${u?'ユーザー編集':'ユーザー追加'}</div>
   <div id="uf-err" style="display:none" class="err-box"></div>
-  <div id="uf-ok" style="display:none" class="ok-box"></div>
   <div class="fg2">
     <div><label>名前 *</label><input id="uf-n" value="${esc(v.name||'')}"></div>
-    <div>
-      <label>メールアドレス *</label>
-      <input id="uf-e" type="email" value="${esc(v.email||'')}" ${!isNew?'readonly style="background:var(--c-bg2);color:var(--c-text2)"':''}>
-      ${!isNew?'<div class="pw-hint">メールアドレスは変更できません</div>':''}
-    </div>
-    ${isNew?`<div><label>初期パスワード *</label><input id="uf-pw" type="password" placeholder="6文字以上"><div class="pw-hint">ユーザーは後でパスワード変更できます</div></div>`:''}
+    <div><label>メールアドレス *</label><input id="uf-e" type="email" value="${esc(v.email||'')}" ${!isNew?'readonly style="background:var(--c-bg2);color:var(--c-text2)"':''}>
+    ${!isNew?'<div class="pw-hint">メールアドレスは変更できません</div>':''}</div>
+    ${isNew?`<div><label>初期パスワード *</label><input id="uf-pw" type="password" placeholder="6文字以上"><div class="pw-hint">後でパスワードリセット可能</div></div>`:''}
     <div><label>権限</label><select id="uf-r"><option value="user"${v.role!=='admin'?' selected':''}>ユーザー</option><option value="admin"${v.role==='admin'?' selected':''}>管理者</option></select></div>
     <div><label>架電目標/日</label><input id="uf-ct" type="number" value="${v.callTarget||30}"></div>
     <div><label>アポ目標/日</label><input id="uf-at" type="number" value="${v.apoTarget||3}"></div>
   </div>
   <div class="fa"><button id="uf-cancel">キャンセル</button><button class="primary" id="uf-save">保存</button></div></div>`;
 }
-
 function bSettings() {
   document.getElementById('add-u').onclick=()=>{showAddU=!showAddU;editUid=null;render();};
   document.querySelectorAll('.eu').forEach(b=>b.onclick=()=>{editUid=b.dataset.uid;showAddU=false;render();});
   document.querySelectorAll('.du').forEach(b=>b.onclick=async()=>{
-    if(!confirm(`「${b.dataset.name}」をFirestoreから削除しますか？\n※Firebase Authenticationのアカウントは別途削除が必要です。`))return;
-    await deleteDoc(ref('users',b.dataset.uid));
-    st.users=st.users.filter(u=>u.id!==b.dataset.uid);toast('削除しました');render();
+    if(!confirm(`「${b.dataset.name}」を削除しますか？`))return;
+    await deleteDoc(ref('users',b.dataset.uid));st.users=st.users.filter(u=>u.id!==b.dataset.uid);toast('削除しました');render();
   });
-
-  const elUfCancel=document.getElementById('uf-cancel');
-  if(elUfCancel)elUfCancel.onclick=()=>{showAddU=false;editUid=null;render();};
-
-  const elUfSave=document.getElementById('uf-save');
-  if(!elUfSave)return;
-
+  const elUfCancel=document.getElementById('uf-cancel');if(elUfCancel)elUfCancel.onclick=()=>{showAddU=false;editUid=null;render();};
+  const elUfSave=document.getElementById('uf-save');if(!elUfSave)return;
   elUfSave.onclick=async()=>{
     const name=document.getElementById('uf-n').value.trim();
     const email=document.getElementById('uf-e').value.trim();
-    const errEl=document.getElementById('uf-err');
-    const okEl=document.getElementById('uf-ok');
-    errEl.style.display='none'; okEl.style.display='none';
-
+    const errEl=document.getElementById('uf-err');errEl.style.display='none';
     if(!name){errEl.textContent='名前は必須です';errEl.style.display='block';return;}
-
-    const data={
-      name,
-      role:document.getElementById('uf-r').value,
-      callTarget:parseInt(document.getElementById('uf-ct').value)||0,
-      apoTarget:parseInt(document.getElementById('uf-at').value)||0
-    };
-
-    if(editUid) {
-      // 既存ユーザー編集（名前・権限・目標のみ変更可）
+    const data={name,role:document.getElementById('uf-r').value,callTarget:parseInt(document.getElementById('uf-ct').value)||0,apoTarget:parseInt(document.getElementById('uf-at').value)||0};
+    if(editUid){
       await updateDoc(ref('users',editUid),data);
-      const idx=st.users.findIndex(u=>u.id===editUid);
-      if(idx>=0)st.users[idx]={...st.users[idx],...data};
-      editUid=null; toast('保存しました'); render();
+      const idx=st.users.findIndex(u=>u.id===editUid);if(idx>=0)st.users[idx]={...st.users[idx],...data};
+      editUid=null;toast('保存しました');render();
     } else {
-      // 新規ユーザー追加: Firebase Authでアカウント作成
       if(!email){errEl.textContent='メールアドレスは必須です';errEl.style.display='block';return;}
-      const pwEl=document.getElementById('uf-pw');
-      const pw=pwEl?pwEl.value:'';
+      const pw=document.getElementById('uf-pw')?.value||'';
       if(!pw||pw.length<6){errEl.textContent='パスワードは6文字以上で入力してください';errEl.style.display='block';return;}
       const dup=st.users.find(u=>(u.email||'').toLowerCase()===email.toLowerCase());
       if(dup){errEl.textContent='このメールアドレスは既に登録されています';errEl.style.display='block';return;}
-
       elUfSave.disabled=true;
-      try {
-        // Firebase Authにアカウント作成
-        const cred = await createUserWithEmailAndPassword(auth, email, pw);
-        // Firestoreにユーザー情報保存（uidを紐付け）
-        const fullData = {...data, email, uid: cred.user.uid, createdAt: ts()};
-        const r = await addDoc(col('users'), fullData);
-        st.users.push({id:r.id,...fullData});
-        showAddU=false;
-        toast('ユーザーを追加しました');
-
-        // ⚠️ 注意: createUserWithEmailAndPassword は自動的にそのアカウントでサインインする
-        // 現在の管理者セッションを維持するために再サインインが必要な場合がある
-        // ここでは管理者の st.user を維持し続ける
-        render();
-      } catch(e) {
-        errEl.textContent = authErrMsg(e.code);
-        errEl.style.display='block';
-        elUfSave.disabled=false;
-      }
+      try{
+        const cred=await createUserWithEmailAndPassword(auth,email,pw);
+        const fullData={...data,email,uid:cred.user.uid,createdAt:ts()};
+        const r=await addDoc(col('users'),fullData);
+        st.users.push({id:r.id,...fullData});showAddU=false;toast('ユーザーを追加しました');render();
+      }catch(e){errEl.textContent=authErrMsg(e.code);errEl.style.display='block';elUfSave.disabled=false;}
     }
   };
 }
-
-// ============================================================
-// Start
-// ============================================================
-// onAuthStateChanged が自動で init を担うため、追加の init() 呼び出しは不要
 </script>
 </body>
 </html>
