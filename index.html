@@ -941,6 +941,93 @@ function rContactForm(c,ct) {
 }
 
 
+
+// ============================================================
+// 申込書 出力
+// ============================================================
+function exportShinseisho(dealId) {
+  const d = st.deals.find(x => x.id === dealId);
+  if (!d) { alert('案件情報が見つかりません'); return; }
+  const c = st.customers.find(x => x.id === d.customerId) || {};
+  const ct = st.contacts.find(x => x.id === d.contactId) || {};
+
+  function e(v) {
+    return String(v||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+  function fmtMoney(v) { return v ? parseInt(v).toLocaleString() : ''; }
+  function fmtDate(s) {
+    if (!s) return '';
+    const dt = new Date(s);
+    return dt.getFullYear() + '年' + (dt.getMonth()+1) + '月' + dt.getDate() + '日';
+  }
+  const today = fmtDate(new Date().toISOString().slice(0,10));
+  const addr = e([c.prefecture, c.city].filter(Boolean).join(''));
+
+  const row = (label, val, label2, val2) => {
+    if (label2 !== undefined) {
+      return '<tr><td class="lbl">' + label + '</td><td>' + val + '</td>'
+           + '<td class="lbl">' + (label2||'') + '</td><td>' + (val2||'') + '</td></tr>';
+    }
+    return '<tr><td class="lbl">' + label + '</td><td colspan="3">' + val + '</td></tr>';
+  };
+  const sec = t => '<tr><td colspan="4" class="sec">' + t + '</td></tr>';
+
+  const body = [
+    '<tr><td colspan="4" class="ttl">サービス申込書</td></tr>',
+    row('申込日', today),
+    sec('ゴ契約者情報'),
+    '<tr><td class="lbl">会社名</td><td colspan="2">' + e(c.companyName) + '</td>'
+      + '<td rowspan="5" style="text-align:center;width:80px"><div style="border:1px dashed #aaa;border-radius:50%;width:58px;height:58px;margin:auto;display:flex;align-items:center;justify-content:center;color:#bbb;font-size:11px">印</div></td></tr>',
+    '<tr><td class="lbl">所在地</td><td colspan="2">〒　' + addr + '</td></tr>',
+    '<tr><td class="lbl">担当者名</td><td colspan="2">' + e(ct.name) + '</td></tr>',
+    '<tr><td class="lbl">部署・役職</td><td>' + e(ct.department) + '</td><td>' + e(ct.position) + '</td></tr>',
+    '<tr><td class="lbl">電話番号</td><td>' + e(ct.phone) + '</td><td class="lbl">メールアドレス</td></tr>',
+    '<tr><td class="lbl">メール</td><td colspan="3">' + e(ct.email) + '</td></tr>',
+    sec('ゴ請求先情報'),
+    '<tr><td colspan="4" style="background:#fafafa;font-size:10px;color:#666;padding:5px 8px">□　契約者情報と同じ　　導なる場合は以下に記入</td></tr>',
+    row('請求先会社名', ''),
+    row('所在地', '〒'),
+    row('担当者名', '', '部署・役職', ''),
+    row('電話番号', '', 'メールアドレス', ''),
+    sec('契約条件'),
+    row('契約開始日', fmtDate(d.contractStartDate)),
+    row('プラン名', e(d.planName), 'オプション', e(d.optionName)),
+    row('初期費用', '￥ ' + fmtMoney(d.initialFee) + '（税込）', '月額利用料', '￥ ' + fmtMoney(d.monthlyFee) + '（税込）'),
+    row('利用期間', (d.periodMonths||'') + 'か月（※以後、自動更新）', '支払い金額合計', '￥ ' + fmtMoney(d.totalAmount) + '（税込）'),
+    row('支払い方法', '□クレジットカード　□銀行振り込み　□口座振替'),
+    row('請求締日', e(d.billingClosingDay), 'お支払日', e(d.paymentDay)),
+    row('解約', '契約満了日の30日前までに所定の方法でお申し出ください。'),
+    sec('ゴ確認事項'),
+    '<tr><td colspan="4" style="padding:8px 10px;line-height:2">'
+      + '私は、以下の内容を確認し、同意のうえ申し込みます。<br>'
+      + '　● 利用規約を確認し、その内容に同意します。<br>'
+      + '　● プライバシーポリシーを確認し、その内容に同意します。<br>'
+      + '　● AIによる生成結果については、利用者自身が最終確認を行うものとします。<br>'
+      + '　● 月額料金は契約開始日より発生します。<br><br>'
+      + '<span style="font-size:10px;color:#666">利用規約：https://____________________ &nbsp;&nbsp; プライバシーポリシー：https://____________________</span>'
+      + '</td></tr>',
+    '<tr><td class="lbl" style="text-align:center">申込者署名</td>'
+      + '<td colspan="2" style="height:65px"></td>'
+      + '<td style="text-align:center;width:80px"><div style="border:1px dashed #aaa;border-radius:50%;width:58px;height:58px;margin:auto;display:flex;align-items:center;justify-content:center;color:#bbb;font-size:11px">印</div></td></tr>',
+  ].join('');
+
+  const page = '<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"><title>サービス申込書</title>'
+    + '<style>@page{size:A4;margin:12mm}*{box-sizing:border-box;margin:0;padding:0}'
+    + 'body{font-family:"MS Gothic","Hiragino Kaku Gothic ProN",sans-serif;font-size:11px;color:#111}'
+    + 'table{width:100%;border-collapse:collapse}'
+    + 'td{border:1px solid #999;padding:5px 7px;vertical-align:middle}'
+    + '.ttl{background:#444;color:#fff;font-size:15px;font-weight:bold;text-align:center;padding:10px}'
+    + '.sec{background:#e8f0fe;color:#1a56a0;font-weight:bold;font-size:11px;padding:5px 8px}'
+    + '.lbl{background:#f8f9fa;color:#555;width:22%;font-size:10px}'
+    + '@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}'
+    + '</style></head><body><table>' + body + '</table></body></html>';
+
+  const win = window.open('', '_blank', 'width=860,height=1100');
+  win.document.write(page);
+  win.document.close();
+  setTimeout(() => win.print(), 800);
+}
+
 // ============================================================
 // Deals Tab
 // ============================================================
@@ -957,6 +1044,7 @@ function rDealsTab(c,deals,contacts){
       '<div style="display:flex;align-items:center;gap:8px"><span class="badge ds-'+esc(d.status||'商談中')+'">'+esc(d.status||'商談中')+'</span>'+
       (d.planName?'<span style="font-size:13px;font-weight:600">'+esc(d.planName)+'</span>':'')+'</div>'+
       '<div style="display:flex;gap:6px">'+
+      '<button class="sm export-deal-btn" data-did="'+d.id+'">📄 申込書を出力</button>'+
       '<button class="sm edit-deal-btn" data-did="'+d.id+'">編集</button>'+
       '<button class="sm danger del-deal-btn" data-did="'+d.id+'">削除</button>'+
       '</div></div>'+
@@ -1207,6 +1295,7 @@ function bDetail() {
     }catch(e){alert('保存に失敗しました: '+e.message);}
     finally{elDealSave.disabled=false;}
   };
+  document.querySelectorAll('.export-deal-btn').forEach(b=>b.onclick=()=>{exportShinseisho(b.dataset.did);});
   document.querySelectorAll('.edit-deal-btn').forEach(b=>b.onclick=()=>{editDealId=b.dataset.did;showDealForm=true;render();});
   document.querySelectorAll('.del-deal-btn').forEach(b=>b.onclick=async()=>{
     if(!confirm('この案件を削除しますか？'))return;
