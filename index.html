@@ -78,12 +78,14 @@
   .loading { text-align:center; padding:60px; color:var(--c-text3); font-size:15px; }
   .toast { position:fixed; bottom:24px; right:24px; background:#323232; color:#fff; padding:12px 20px; border-radius:var(--radius); font-size:13px; z-index:9999; animation:fi .2s; }
   @keyframes fi { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
-  .call-card { background:var(--c-bg2); border-radius:var(--radius); padding:14px; margin-bottom:10px; }
-  .call-meta { display:flex; gap:10px; align-items:center; margin-bottom:8px; flex-wrap:wrap; }
+  .call-card { background:var(--c-bg); border:1px solid var(--c-border); border-radius:var(--radius-lg); padding:16px; margin-bottom:12px; box-shadow:0 1px 4px rgba(0,0,0,.04); }
+  .call-card:hover { border-color:#b0c8f0; }
+  .call-meta { display:flex; gap:8px; align-items:center; margin-bottom:10px; flex-wrap:wrap; border-bottom:1px solid var(--c-border); padding-bottom:10px; }
   .section-title { font-size:15px; font-weight:600; margin-bottom:12px; display:flex; justify-content:space-between; align-items:center; }
-  .tabs { display:flex; border-bottom:1px solid var(--c-border); margin-bottom:16px; }
-  .tab { padding:10px 18px; font-size:13px; border:none; background:transparent; cursor:pointer; font-family:inherit; color:var(--c-text2); border-bottom:2px solid transparent; margin-bottom:-1px; }
-  .tab.active { color:var(--c-blue); border-bottom-color:var(--c-blue); font-weight:600; }
+  .tabs { display:flex; background:var(--c-bg); border:1px solid var(--c-border); border-radius:var(--radius-lg); padding:4px; gap:4px; margin-bottom:16px; }
+  .tab { padding:8px 18px; font-size:13px; border:none; background:transparent; cursor:pointer; font-family:inherit; color:var(--c-text2); border-radius:var(--radius); margin-bottom:0; border-bottom:none; }
+  .tab:hover { background:var(--c-bg2); }
+  .tab.active { background:var(--c-blue); color:#fff; font-weight:600; }
   .contact-card { background:var(--c-bg2); border-radius:var(--radius); padding:14px; margin-bottom:10px; }
   .contact-header { display:flex; justify-content:space-between; align-items:flex-start; }
   .contact-name { font-weight:600; font-size:14px; }
@@ -194,8 +196,10 @@ let bulkMode = false;
 let bulkSelected = new Set();
 let showDealForm = false;
 let editDealId = null;
+let editCallId = null;
 
 const ts = () => new Date().toISOString();
+function debounce(fn, ms) { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; }
 const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 const isUrl = s => /^https?:\/\/.+/.test((s||'').trim());
 const rankBadge = r => r ? `<span class="badge r-${r}">${r}ランク</span>` : `<span class="badge r-未設定">未設定</span>`;
@@ -652,8 +656,9 @@ function filteredC() {
 }
 
 function bCustList() {
-  const bind=(id,key)=>{const el=document.getElementById(id);if(!el)return;el.addEventListener('input',()=>{cf[key]=el.value;render();});el.addEventListener('change',()=>{cf[key]=el.value;render();});};
-  bind('fs','search');bind('fst','status');bind('fp','pref');bind('fr','res');bind('fmn','minE');bind('fmx','maxE');bind('fa','assignee');bind('frk','rank');
+  const renderD=debounce(render,200);
+  const bind=(id,key,instant)=>{const el=document.getElementById(id);if(!el)return;el.addEventListener('input',()=>{cf[key]=el.value;instant?render():renderD();});el.addEventListener('change',()=>{cf[key]=el.value;render();});};
+  bind('fs','search');bind('fst','status',true);bind('fp','pref');bind('fr','res',true);bind('fmn','minE');bind('fmx','maxE');bind('fa','assignee',true);bind('frk','rank',true);
   document.getElementById('fclr').onclick=()=>{cf={search:'',status:'',pref:'',minE:'',maxE:'',res:'',assignee:'',rank:''};render();};
   const elExport=document.getElementById('export-csv');
   if(elExport)elExport.onclick=()=>{
@@ -988,16 +993,19 @@ function rCallsTab(c,calls) {
   ${showCallF?rCallForm():''}
   ${calls.length===0&&!showCallF
     ?`<div style="padding:32px;text-align:center;color:var(--c-text3);background:var(--c-bg2);border-radius:var(--radius)">架電履歴がありません</div>`
-    :calls.map(h=>{const u=st.users.find(x=>x.id===h.userId);return`
+    :calls.map(h=>{const u=st.users.find(x=>x.id===h.userId);if(editCallId===h.id)return rCallEditForm(h);return`
     <div class="call-card">
       <div class="call-meta">
         <span style="font-size:13px;font-weight:600">${new Date(h.calledAt).toLocaleString('ja-JP')}</span>
         <span style="font-size:12px;color:var(--c-text2)">${esc(u?u.name:'不明')}</span>
         <span class="badge" style="background:var(--c-bg3);color:var(--c-text)">${esc(h.result)}</span>
-        <button class="danger sm del-call" data-cid="${h.id}" style="margin-left:auto">削除</button>
+        <div style="margin-left:auto;display:flex;gap:6px">
+          <button class="sm edit-call" data-cid="${h.id}">編集</button>
+          <button class="danger sm del-call" data-cid="${h.id}">削除</button>
+        </div>
       </div>
-      ${h.memo?`<div style="font-size:13px;white-space:pre-wrap;margin-bottom:4px">${esc(h.memo)}</div>`:''}
-      ${h.nextActionAt?`<div style="font-size:12px;color:var(--c-text2)">次回: ${new Date(h.nextActionAt).toLocaleString('ja-JP')}${h.nextActionContent?' — '+esc(h.nextActionContent):''}</div>`:''}
+      ${h.memo?`<div style="font-size:13px;white-space:pre-wrap;margin-bottom:8px">${esc(h.memo)}</div>`:''}
+      ${h.nextActionAt?`<div style="font-size:12px;color:var(--c-text2);background:var(--c-blue-bg);padding:6px 10px;border-radius:var(--radius)">📅 次回: ${new Date(h.nextActionAt).toLocaleString('ja-JP')}${h.nextActionContent?' — '+esc(h.nextActionContent):''}</div>`:''}
     </div>`;}).join('')}`;
 }
 
@@ -1017,10 +1025,26 @@ function rCallForm() {
   <div class="fa"><button id="h-cancel">キャンセル</button><button class="primary" id="h-save">保存</button></div></div>`;
 }
 
+function rCallEditForm(h) {
+  const fmt=s=>s?s.slice(0,16):'';
+  return `<div class="card" style="margin-bottom:12px">
+  <div style="font-size:14px;font-weight:600;margin-bottom:12px">架電記録を編集</div>
+  <div class="fg2">
+    <div><label>架電日時</label><input type="datetime-local" id="he-dt" value="${esc(fmt(h.calledAt))}"></div>
+    <div><label>架電結果</label><select id="he-res">${CALL_RESULTS.map(r=>`<option${h.result===r?' selected':''}>${r}</option>`).join('')}</select></div>
+  </div>
+  <div style="margin:10px 0"><label>通話内容メモ</label><textarea id="he-memo" rows="3">${esc(h.memo||'')}</textarea></div>
+  <div class="fg2">
+    <div><label>次回アクション日時</label><input type="datetime-local" id="he-nat" value="${esc(fmt(h.nextActionAt||''))}"></div>
+    <div><label>次回アクション内容</label><input id="he-nac" value="${esc(h.nextActionContent||'')}"></div>
+  </div>
+  <div class="fa"><button id="he-cancel">キャンセル</button><button class="primary" id="he-save" data-cid="${h.id}">保存</button></div></div>`;
+}
+
 function bDetail() {
   const c=st.customers.find(x=>x.id===st.selId);if(!c)return;
   document.getElementById('back').onclick=()=>{st.view='customers';editCid=null;showCallF=false;showAddContact=false;editContactId=null;render();};
-  document.querySelectorAll('.tab[data-tab]').forEach(b=>b.onclick=()=>{detailTab=b.dataset.tab;showCallF=false;showAddContact=false;editContactId=null;showDealForm=false;editDealId=null;render();});
+  document.querySelectorAll('.tab[data-tab]').forEach(b=>b.onclick=()=>{detailTab=b.dataset.tab;showCallF=false;showAddContact=false;editContactId=null;showDealForm=false;editDealId=null;editCallId=null;render();});
 
   // 重複バナーの「詳細を開く」リンク
   document.querySelectorAll('.dup-banner-link[data-dup-id]').forEach(el=>{
@@ -1090,6 +1114,21 @@ function bDetail() {
       }
       showCallF=false;toast('架電記録を保存しました');render();
     }catch(e){alert('保存に失敗しました: '+e.message);elHSave.disabled=false;}
+  };
+  document.querySelectorAll('.edit-call').forEach(b=>b.onclick=()=>{editCallId=b.dataset.cid;showCallF=false;render();});
+  const elHeCancel=document.getElementById('he-cancel');
+  if(elHeCancel)elHeCancel.onclick=()=>{editCallId=null;render();};
+  const elHeSave=document.getElementById('he-save');
+  if(elHeSave)elHeSave.onclick=async()=>{
+    if(elHeSave.disabled)return; elHeSave.disabled=true;
+    const cid=elHeSave.dataset.cid;
+    const data={calledAt:document.getElementById('he-dt').value,result:document.getElementById('he-res').value,memo:document.getElementById('he-memo').value.trim(),nextActionAt:document.getElementById('he-nat').value,nextActionContent:document.getElementById('he-nac').value.trim()};
+    try{
+      await updateDoc(ref('callHistory',cid),data);
+      const idx=st.calls.findIndex(x=>x.id===cid);
+      if(idx>=0)st.calls[idx]={...st.calls[idx],...data};
+      editCallId=null;toast('架電記録を更新しました');render();
+    }catch(e){alert('更新に失敗しました: '+e.message);elHeSave.disabled=false;}
   };
   document.querySelectorAll('.del-call').forEach(b=>b.onclick=async e=>{
     e.stopPropagation();if(!confirm('この架電記録を削除しますか？'))return;
