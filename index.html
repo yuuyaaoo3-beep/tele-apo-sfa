@@ -1073,9 +1073,6 @@ function rLegalTab(c) {
   const status = hc.status || '未実施';
   const checks = hc.checks || {};
   const statusColor = LEGAL_STATUS_COLOR[status] || 'var(--c-text3)';
-  const statusOpts = LEGAL_STATUSES.map(s =>
-    '<option value="' + s + '"' + (status === s ? ' selected' : '') + '>' + s + '</option>'
-  ).join('');
   const checkedCount = LEGAL_ITEMS.filter((_,i) => checks['c'+(i+1)]).length;
 
   return '<div class="card">'
@@ -1100,11 +1097,8 @@ function rLegalTab(c) {
     + '<div style="margin-top:14px"><label>確認メモ・特記事項</label>'
     + '<textarea id="lc-memo" rows="3" style="margin-top:6px">' + esc(hc.memo||'') + '</textarea></div>'
 
-    + '<div style="display:flex;gap:12px;align-items:center;margin-top:14px;flex-wrap:wrap">'
-    + '<div style="display:flex;align-items:center;gap:8px">'
-    + '<label style="margin:0;white-space:nowrap;font-size:12px">ステータス</label>'
-    + '<select id="lc-status">' + statusOpts + '</select></div>'
-    + '<button class="primary" id="lc-save" style="margin-left:auto">保存</button>'
+    + '<div style="display:flex;justify-content:flex-end;margin-top:14px">'
+    + '<button class="primary" id="lc-save">保存</button>'
     + '</div>'
 
     + (hc.checkedAt ? '<div style="font-size:11px;color:var(--c-text3);margin-top:10px">最終更新: ' + new Date(hc.checkedAt).toLocaleString('ja-JP') + (hc.checkedByName ? ' by ' + esc(hc.checkedByName) : '') + '</div>' : '')
@@ -1257,11 +1251,13 @@ function bDetail() {
       const el=document.getElementById('lc-c'+(i+1));
       if(el)checks['c'+(i+1)]=el.checked;
     });
+    const checkedVals=Object.values(checks);
+    const autoStatus=checkedVals.length===0||checkedVals.every(v=>!v)?'未実施':checkedVals.every(v=>v)?'承認済み':'確認中';
     const data={
       customerId:c.id,
       checks,
       memo:document.getElementById('lc-memo').value.trim(),
-      status:document.getElementById('lc-status').value,
+      status:autoStatus,
       checkedAt:ts(),
       checkedByName:st.user?.name||'',
     };
