@@ -777,9 +777,16 @@ function rCustForm(c) {
     <div><label>従業員数</label><input id="cf-em" type="number" value="${esc(v.employees||'')}"></div>
     <div><label>資本金（円）</label><input id="cf-ca" type="number" value="${esc(v.capital||'')}"></div>
     <div><label>更新回数</label><input id="cf-re" type="number" value="${esc(v.renewalCount||'')}"></div>
-    <div><label>都道府県</label><input id="cf-pf" value="${esc(v.prefecture||'')}"></div>
-    <div><label>市区町村</label><input id="cf-ct" value="${esc(v.city||'')}"></div>
-    <div><label>〒（郵便番号）</label><input id="cf-zip" placeholder="例: 100-0001" value="${esc(v.postalCode||'')}"></div>
+    <input type="hidden" id="cf-pf" value="${esc(v.prefecture||'')}">
+    <input type="hidden" id="cf-ct" value="${esc(v.city||'')}">
+    <div style="grid-column:1/-1">
+      <label>〒（郵便番号）</label>
+      <div style="display:flex;gap:8px;align-items:center;margin-top:4px">
+        <input id="cf-zip" placeholder="例: 1000001（ハイフン不要）" value="${esc(v.postalCode||'')}" style="max-width:200px">
+        <button type="button" id="cf-zip-search" class="sm">住所を検索</button>
+        <span id="cf-zip-result" style="font-size:12px;color:var(--c-text2)">${v.prefecture||v.city?esc((v.prefecture||'')+(v.city||'')):''}</span>
+      </div>
+    </div>
     <div><label>住所（番地以降）</label><input id="cf-addr" value="${esc(v.address||'')}"></div>
     <div style="grid-column:1/-1"><label>住所ふりがな</label><input id="cf-addr-kana" value="${esc(v.addressKana||'')}"></div>
     <div><label>ランク</label><select id="cf-rk">${rankOpts}</select></div>
@@ -818,6 +825,39 @@ function bCustForm(customer) {
     } else { warnEl.style.display='none'; }
   };
   ['cf-cp','cf-ce','cf-ws'].forEach(id=>{const el=document.getElementById(id);if(el)el.addEventListener('input',checkDup);});
+
+  // 郵便番号 → 住所自動検索
+  const doZipSearch = async () => {
+    const zipEl = document.getElementById('cf-zip');
+    const resultEl = document.getElementById('cf-zip-result');
+    const pfEl = document.getElementById('cf-pf');
+    const ctEl = document.getElementById('cf-ct');
+    if (!zipEl) return;
+    const zip = zipEl.value.replace(/[^0-9]/g, '');
+    if (zip.length !== 7) { if(resultEl) resultEl.textContent = '7桁で入力してください'; return; }
+    if(resultEl) resultEl.textContent = '検索中…';
+    try {
+      const res = await fetch(`https://zipcloud.ibsnet.co.jp/api/search?zipcode=${zip}`);
+      const json = await res.json();
+      if (json.results && json.results.length > 0) {
+        const r = json.results[0];
+        const pref = r.address1 || '';
+        const city = r.address2 + (r.address3 || '');
+        if(pfEl) pfEl.value = pref;
+        if(ctEl) ctEl.value = city;
+        if(resultEl) resultEl.textContent = pref + city;
+        resultEl.style.color = 'var(--c-green)';
+      } else {
+        if(resultEl) { resultEl.textContent = '該当する住所が見つかりません'; resultEl.style.color = 'var(--c-red)'; }
+      }
+    } catch(e) {
+      if(resultEl) { resultEl.textContent = '検索に失敗しました'; resultEl.style.color = 'var(--c-red)'; }
+    }
+  };
+  const zipSearchBtn = document.getElementById('cf-zip-search');
+  if(zipSearchBtn) zipSearchBtn.onclick = doZipSearch;
+  const zipEl = document.getElementById('cf-zip');
+  if(zipEl) zipEl.addEventListener('keydown', e => { if(e.key === 'Enter') { e.preventDefault(); doZipSearch(); } });
 
   const saveEl=document.getElementById('cf-save');
   if(saveEl) saveEl.onclick=async()=>{
