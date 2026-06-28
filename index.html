@@ -182,7 +182,7 @@ const RANKS = ['A','B','C','D'];
 // ============================================================
 // State
 // ============================================================
-let st = { loaded:false, authReady:false, firebaseUser:null, user:null, users:[], customers:[], contacts:[], calls:[], deals:[], hanshaChecks:[], view:'dashboard', selId:null };
+let st = { loaded:false, authReady:false, firebaseUser:null, user:null, users:[], customers:[], contacts:[], calls:[], deals:[], legalChecks:[], view:'dashboard', selId:null };
 let dashPeriod = 'day';
 let dashUserFilter = '';
 let cf = { search:'', status:'', pref:'', minE:'', maxE:'', res:'', assignee:'', rank:'' };
@@ -304,7 +304,7 @@ async function loadData() {
   st.contacts=cts.docs.map(d=>({id:d.id,...d.data()}));
   st.calls=hs.docs.map(d=>({id:d.id,...d.data()}));
   try{const ds=await getDocs(col('deals'));st.deals=ds.docs.map(d=>({id:d.id,...d.data()}));}catch(e){st.deals=[];}
-  try{const hs2=await getDocs(col('hanshaChecks'));st.hanshaChecks=hs2.docs.map(d=>({id:d.id,...d.data()}));}catch(e){st.hanshaChecks=[];}
+  try{const hs2=await getDocs(col('legalChecks'));st.legalChecks=hs2.docs.map(d=>({id:d.id,...d.data()}));}catch(e){st.legalChecks=[];}
 }
 async function reload() { await loadData(); }
 
@@ -901,12 +901,12 @@ function rDetail() {
     <button class="tab${detailTab==='calls'?' active':''}" data-tab="calls">架電履歴（${calls.length}）</button>
     <button class="tab${detailTab==='contacts'?' active':''}" data-tab="contacts">担当者情報（${contacts.length}）</button>
     <button class="tab${detailTab==='deals'?' active':''}" data-tab="deals">案件管理（${cDeals.length}）</button>
-    <button class="tab${detailTab==='hansha'?' active':''}" data-tab="hansha" style="${(() => { const hc=st.hanshaChecks.find(x=>x.customerId===c.id); return hc&&hc.status==='承認済み'?'color:var(--c-green)':hc&&hc.status==='要確認'?'color:var(--c-red)':''; })()}">反社チェック</button>
+    <button class="tab${detailTab==='hansha'?' active':''}" data-tab="hansha">${(()=>{const lc=st.legalChecks.find(x=>x.customerId===c.id);const s=lc?lc.status:'未実施';const dot=s==='承認済み'?'<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#34a853;margin-right:4px"></span>':s==='要確認'?'<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#ea4335;margin-right:4px"></span>':s==='確認中'?'<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#fbbc04;margin-right:4px"></span>':'<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#bbb;margin-right:4px"></span>';return dot;})()}リーガルチェック</button>
   </div>
   ${detailTab==='contacts'?rContactsTab(c,contacts):''}
   ${detailTab==='calls'?rCallsTab(c,calls):''}
   ${detailTab==='deals'?rDealsTab(c,cDeals,contacts):''}
-  ${detailTab==='hansha'?rHanshaTab(c):''}`;
+  ${detailTab==='hansha'?rLegalTab(c):''}`;
 }
 
 function rContactsTab(c,contacts) {
@@ -1055,9 +1055,9 @@ function exportShinseisho(dealId) {
 }
 
 // ============================================================
-// 反社チェック Tab
+// リーガルチェック Tab
 // ============================================================
-const HANSHA_ITEMS = [
+const LEGAL_ITEMS = [
   '会社名・代表者名でのインターネット検索を実施した',
   '国税庁の法人番号公表サイトで法人情報を確認した',
   '暴力団・暴力団関係企業との関係がないことを確認した',
@@ -1067,53 +1067,55 @@ const HANSHA_ITEMS = [
   '取引先の実態（幽霊会社でないか）を確認した',
   '上記すべての確認を経て、取引に問題がないと総合的に判断した',
 ];
-const HANSHA_STATUSES = ['未実施','確認中','承認済み','要確認'];
-const HANSHA_STATUS_COLOR = { '未実施':'var(--c-text3)', '確認中':'var(--c-blue)', '承認済み':'var(--c-green)', '要確認':'var(--c-red)' };
+const LEGAL_STATUSES = ['未実施','確認中','承認済み','要確認'];
+const LEGAL_STATUS_COLOR = { '未実施':'var(--c-text3)', '確認中':'var(--c-blue)', '承認済み':'var(--c-green)', '要確認':'var(--c-red)' };
 
-function rHanshaTab(c) {
-  const hc = st.hanshaChecks.find(x => x.customerId === c.id) || {};
+function rLegalTab(c) {
+  const hc = st.legalChecks.find(x => x.customerId === c.id) || {};
   const status = hc.status || '未実施';
   const checks = hc.checks || {};
-  const statusColor = HANSHA_STATUS_COLOR[status] || 'var(--c-text3)';
-  const statusOpts = HANSHA_STATUSES.map(s =>
+  const statusColor = LEGAL_STATUS_COLOR[status] || 'var(--c-text3)';
+  const statusOpts = LEGAL_STATUSES.map(s =>
     '<option value="' + s + '"' + (status === s ? ' selected' : '') + '>' + s + '</option>'
   ).join('');
-  const checkedCount = HANSHA_ITEMS.filter((_,i) => checks['c'+(i+1)]).length;
+  const checkedCount = LEGAL_ITEMS.filter((_,i) => checks['c'+(i+1)]).length;
   const ntaUrl = 'https://www.houjin-bangou.nta.go.jp/henkorireki-johoto.html?selHouzinNo=';
   const ntaSearchUrl = 'https://www.houjin-bangou.nta.go.jp/tetsuzuki/shin-kigyou.html';
 
   return '<div class="card">'
     + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--c-border)">'
-    + '<div style="font-size:14px;font-weight:600">反社チェック</div>'
+    + '<div style="font-size:14px;font-weight:600">リーガルチェック</div>'
     + '<span style="font-size:13px;font-weight:600;color:' + statusColor + '">● ' + esc(status) + '</span>'
     + '</div>'
 
     + '<div style="background:var(--c-bg2);border-radius:var(--radius-lg);padding:14px;margin-bottom:16px">'
     + '<div style="font-size:12px;font-weight:600;color:var(--c-text2);margin-bottom:10px">法人番号確認</div>'
     + '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">'
-    + '<input id="hc-corp-num" placeholder="法人番号（13桁）" value="' + esc(hc.corporateNumber||'') + '" style="flex:1;min-width:180px">'
+    + '<input id="lc-corp-num" placeholder="法人番号（13桁）" value="' + esc(hc.corporateNumber||'') + '" style="flex:1;min-width:180px">'
     + '<button class="sm" onclick="window.open(\'' + ntaSearchUrl + '\',\'_blank\')">国税庁で検索 →</button>'
     + (hc.corporateNumber ? '<button class="sm" onclick="window.open(\'' + ntaUrl + esc(hc.corporateNumber||'') + '\',\'_blank\')">登記情報を確認 →</button>' : '')
     + '</div></div>'
 
-    + '<div style="font-size:12px;font-weight:600;color:var(--c-text2);margin-bottom:10px">チェックリスト（' + checkedCount + '/' + HANSHA_ITEMS.length + '）</div>'
-    + HANSHA_ITEMS.map((item, i) => {
+    + '<div style="font-size:12px;font-weight:600;color:var(--c-text2);margin-bottom:10px">チェックリスト（' + checkedCount + '/' + LEGAL_ITEMS.length + '）</div>'
+    + LEGAL_ITEMS.map((item, i) => {
       const key = 'c' + (i+1);
       const checked = checks[key] ? 'checked' : '';
-      return '<label style="display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--c-border);cursor:pointer">'
-        + '<input type="checkbox" id="hc-' + key + '" ' + checked + ' style="margin-top:2px;flex-shrink:0">'
-        + '<span style="font-size:13px;' + (checks[key] ? 'color:var(--c-text2);text-decoration:line-through' : '') + '">' + esc(item) + '</span>'
-        + '</label>';
+      const done = checks[key];
+      return '<div style="display:flex;align-items:flex-start;gap:12px;padding:11px 0;border-bottom:1px solid var(--c-border)">'
+        + '<input type="checkbox" id="lc-' + key + '" ' + checked + ' style="margin-top:2px;flex-shrink:0;width:16px;height:16px;cursor:pointer">'
+        + '<label for="lc-' + key + '" style="font-size:13px;cursor:pointer;flex:1;min-width:0;line-height:1.6;' + (done ? 'color:var(--c-text3);text-decoration:line-through' : 'color:var(--c-text)') + '">' + esc(item) + '</label>'
+        + (done ? '<span style="flex-shrink:0;font-size:11px;color:var(--c-green);font-weight:600">✓</span>' : '')
+        + '</div>';
     }).join('')
 
     + '<div style="margin-top:14px"><label>確認メモ・特記事項</label>'
-    + '<textarea id="hc-memo" rows="3" style="margin-top:6px">' + esc(hc.memo||'') + '</textarea></div>'
+    + '<textarea id="lc-memo" rows="3" style="margin-top:6px">' + esc(hc.memo||'') + '</textarea></div>'
 
     + '<div style="display:flex;gap:12px;align-items:center;margin-top:14px;flex-wrap:wrap">'
     + '<div style="display:flex;align-items:center;gap:8px">'
     + '<label style="margin:0;white-space:nowrap;font-size:12px">ステータス</label>'
-    + '<select id="hc-status">' + statusOpts + '</select></div>'
-    + '<button class="primary" id="hc-save" style="margin-left:auto">保存</button>'
+    + '<select id="lc-status">' + statusOpts + '</select></div>'
+    + '<button class="primary" id="lc-save" style="margin-left:auto">保存</button>'
     + '</div>'
 
     + (hc.checkedAt ? '<div style="font-size:11px;color:var(--c-text3);margin-top:10px">最終更新: ' + new Date(hc.checkedAt).toLocaleString('ja-JP') + (hc.checkedByName ? ' by ' + esc(hc.checkedByName) : '') + '</div>' : '')
@@ -1257,34 +1259,34 @@ function bDetail() {
   const c=st.customers.find(x=>x.id===st.selId);if(!c)return;
   document.getElementById('back').onclick=()=>{st.view='customers';editCid=null;showCallF=false;showAddContact=false;editContactId=null;render();};
   document.querySelectorAll('.tab[data-tab]').forEach(b=>b.onclick=()=>{detailTab=b.dataset.tab;showCallF=false;showAddContact=false;editContactId=null;showDealForm=false;editDealId=null;editCallId=null;render();});
-  // 反社チェック保存
-  const elHcSave=document.getElementById('hc-save');
+  // リーガルチェック保存
+  const elHcSave=document.getElementById('lc-save');
   if(elHcSave)elHcSave.onclick=async()=>{
     if(elHcSave.disabled)return;elHcSave.disabled=true;
     const checks={};
-    HANSHA_ITEMS.forEach((_,i)=>{
-      const el=document.getElementById('hc-c'+(i+1));
+    LEGAL_ITEMS.forEach((_,i)=>{
+      const el=document.getElementById('lc-c'+(i+1));
       if(el)checks['c'+(i+1)]=el.checked;
     });
     const data={
       customerId:c.id,
-      corporateNumber:document.getElementById('hc-corp-num').value.trim(),
+      corporateNumber:document.getElementById('lc-corp-num').value.trim(),
       checks,
-      memo:document.getElementById('hc-memo').value.trim(),
-      status:document.getElementById('hc-status').value,
+      memo:document.getElementById('lc-memo').value.trim(),
+      status:document.getElementById('lc-status').value,
       checkedAt:ts(),
       checkedByName:st.user?.name||'',
     };
     try{
-      const existing=st.hanshaChecks.find(x=>x.customerId===c.id);
+      const existing=st.legalChecks.find(x=>x.customerId===c.id);
       if(existing){
-        await updateDoc(ref('hanshaChecks',existing.id),data);
+        await updateDoc(ref('legalChecks',existing.id),data);
         Object.assign(existing,data);
       } else {
-        const r=await addDoc(col('hanshaChecks'),data);
-        st.hanshaChecks.push({id:r.id,...data});
+        const r=await addDoc(col('legalChecks'),data);
+        st.legalChecks.push({id:r.id,...data});
       }
-      toast('反社チェックを保存しました');render();
+      toast('リーガルチェックを保存しました');render();
     }catch(e){alert('保存に失敗しました: '+e.message);}
     finally{elHcSave.disabled=false;}
   };
