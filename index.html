@@ -285,12 +285,12 @@ onAuthStateChanged(auth, async (firebaseUser) => {
 });
 
 async function loadData() {
-  const [us,cs,cts,hs,ds] = await Promise.all([getDocs(col('users')),getDocs(col('customers')),getDocs(col('contacts')),getDocs(col('callHistory')),getDocs(col('deals'))]);
+  const [us,cs,cts,hs] = await Promise.all([getDocs(col('users')),getDocs(col('customers')),getDocs(col('contacts')),getDocs(col('callHistory'))]);
   st.users=us.docs.map(d=>({id:d.id,...d.data()}));
   st.customers=cs.docs.map(d=>({id:d.id,...d.data()}));
   st.contacts=cts.docs.map(d=>({id:d.id,...d.data()}));
   st.calls=hs.docs.map(d=>({id:d.id,...d.data()}));
-  st.deals=ds.docs.map(d=>({id:d.id,...d.data()}));
+  try{const ds=await getDocs(col('deals'));st.deals=ds.docs.map(d=>({id:d.id,...d.data()}));}catch(e){st.deals=[];}
 }
 async function reload() { await loadData(); }
 
