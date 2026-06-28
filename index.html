@@ -897,8 +897,8 @@ function rDetail() {
     </div>
   </div>`}
   <div class="tabs">
-    <button class="tab${detailTab==='contacts'?' active':''}" data-tab="contacts">担当者情報（${contacts.length}）</button>
     <button class="tab${detailTab==='calls'?' active':''}" data-tab="calls">架電履歴（${calls.length}）</button>
+    <button class="tab${detailTab==='contacts'?' active':''}" data-tab="contacts">担当者情報（${contacts.length}）</button>
     <button class="tab${detailTab==='deals'?' active':''}" data-tab="deals">案件管理（${cDeals.length}）</button>
   </div>
   ${detailTab==='contacts'?rContactsTab(c,contacts):''}
