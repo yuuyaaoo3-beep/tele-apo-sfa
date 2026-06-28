@@ -144,6 +144,9 @@
   .do-not-call-banner { background:var(--c-red-bg); border:2px solid var(--c-red); border-radius:var(--radius); padding:10px 16px; margin-bottom:14px; font-size:13px; color:var(--c-red); font-weight:600; display:flex; align-items:center; gap:10px; }
   tr.row.dnc td { background:#fff0f0 !important; }
   tr.row.dnc:hover td { background:#fce0e0 !important; }
+  .ds-\u5546\u8ac7\u4e2d{background:#e0f0ff;color:#0050a0} .ds-\u5951\u7d04\u6e08{background:#e6f4ea;color:#137333}
+  .ds-\u5931\u6ce8{background:#f0f0f0;color:#666}
+  .deal-card{background:var(--c-bg2);border-radius:var(--radius);padding:14px;margin-bottom:10px;}
 </style>
 </head>
 <body>
@@ -175,7 +178,7 @@ const RANKS = ['A','B','C','D'];
 // ============================================================
 // State
 // ============================================================
-let st = { loaded:false, authReady:false, firebaseUser:null, user:null, users:[], customers:[], contacts:[], calls:[], view:'dashboard', selId:null };
+let st = { loaded:false, authReady:false, firebaseUser:null, user:null, users:[], customers:[], contacts:[], calls:[], deals:[], view:'dashboard', selId:null };
 let dashPeriod = 'day';
 let dashUserFilter = '';
 let cf = { search:'', status:'', pref:'', minE:'', maxE:'', res:'', assignee:'', rank:'' };
@@ -187,8 +190,10 @@ let detailTab = 'contacts';
 let assignViewUid = '';
 let loginMode = 'login';
 let loginMsg = null;
-let bulkMode = false;         // 一括編集モード
-let bulkSelected = new Set(); // 選択中の顧客id
+let bulkMode = false;
+let bulkSelected = new Set();
+let showDealForm = false;
+let editDealId = null;
 
 const ts = () => new Date().toISOString();
 const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
@@ -280,11 +285,12 @@ onAuthStateChanged(auth, async (firebaseUser) => {
 });
 
 async function loadData() {
-  const [us,cs,cts,hs] = await Promise.all([getDocs(col('users')),getDocs(col('customers')),getDocs(col('contacts')),getDocs(col('callHistory'))]);
+  const [us,cs,cts,hs,ds] = await Promise.all([getDocs(col('users')),getDocs(col('customers')),getDocs(col('contacts')),getDocs(col('callHistory')),getDocs(col('deals'))]);
   st.users=us.docs.map(d=>({id:d.id,...d.data()}));
   st.customers=cs.docs.map(d=>({id:d.id,...d.data()}));
   st.contacts=cts.docs.map(d=>({id:d.id,...d.data()}));
   st.calls=hs.docs.map(d=>({id:d.id,...d.data()}));
+  st.deals=ds.docs.map(d=>({id:d.id,...d.data()}));
 }
 async function reload() { await loadData(); }
 
@@ -467,6 +473,9 @@ function rDash() {
   const sc={};STATUSES.forEach(x=>sc[x]=0);
   st.customers.forEach(c=>{const x=c.status||'未架電';if(sc[x]!==undefined)sc[x]++;});
   const pL={day:'本日',week:'週間',month:'月間'};
+  const mStart=new Date();mStart.setDate(1);mStart.setHours(0,0,0,0);
+  const thisMonthDeals=st.deals.filter(d=>d.status==='契約済'&&d.contractDate&&new Date(d.contractDate)>=mStart).length;
+  const thisMonthAmount=st.deals.filter(d=>d.status==='契約済'&&d.contractDate&&new Date(d.contractDate)>=mStart).reduce((s,d)=>s+(parseInt(d.amount)||0),0);
   const rows=st.users.map(u=>{
     const uc=fc.filter(c=>c.userId===u.id);
     const ap=uc.filter(c=>c.result==='アポ獲得').length;
@@ -488,6 +497,8 @@ function rDash() {
     <div class="stat-card"><div class="stat-label">期間内架電数</div><div class="stat-value">${fc.length}</div></div>
     <div class="stat-card"><div class="stat-label">アポ獲得（累計）</div><div class="stat-value">${st.customers.filter(c=>c.status==='アポ獲得').length}</div></div>
     <div class="stat-card"><div class="stat-label">受注（累計）</div><div class="stat-value">${st.customers.filter(c=>c.status==='受注').length}</div></div>
+    <div class="stat-card"><div class="stat-label">今月契約件数</div><div class="stat-value" style="color:var(--c-green)">${thisMonthDeals}</div></div>
+    <div class="stat-card"><div class="stat-label">今月契約金額</div><div class="stat-value" style="color:var(--c-green);font-size:20px">${thisMonthAmount.toLocaleString()}円</div></div>
   </div>
   <div class="card"><div class="section-title">ユーザー別実績（${pL[dashPeriod]}）</div>
   <div class="tw"><table><thead><tr>
@@ -816,6 +827,7 @@ function rDetail() {
   if(!c)return`<div class="loading">顧客が見つかりません</div>`;
   const contacts=st.contacts.filter(x=>x.customerId===c.id);
   const calls=st.calls.filter(x=>x.customerId===c.id).sort((a,b)=>new Date(b.calledAt)-new Date(a.calledAt));
+  const cDeals=st.deals.filter(x=>x.customerId===c.id).sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));
   const rankOpts=`<option value="">未設定</option>${RANKS.map(r=>`<option value="${r}"${c.rank===r?' selected':''}>${r}ランク</option>`).join('')}`;
 
   // 重複候補バナー
@@ -866,9 +878,11 @@ function rDetail() {
   <div class="tabs">
     <button class="tab${detailTab==='contacts'?' active':''}" data-tab="contacts">担当者情報（${contacts.length}）</button>
     <button class="tab${detailTab==='calls'?' active':''}" data-tab="calls">架電履歴（${calls.length}）</button>
+    <button class="tab${detailTab==='deals'?' active':''}" data-tab="deals">案件管理（${cDeals.length}）</button>
   </div>
   ${detailTab==='contacts'?rContactsTab(c,contacts):''}
-  ${detailTab==='calls'?rCallsTab(c,calls):''}`;
+  ${detailTab==='calls'?rCallsTab(c,calls):''}
+  ${detailTab==='deals'?rDealsTab(c,cDeals):''}`;
 }
 
 function rContactsTab(c,contacts) {
@@ -914,6 +928,58 @@ function rContactForm(c,ct) {
   <div class="fa"><button id="ct-cancel">キャンセル</button><button class="primary" id="ct-save" data-ctid="${ct?ct.id:''}">保存</button></div></div>`;
 }
 
+
+// ============================================================
+// Deals Tab
+// ============================================================
+const DEAL_STATUSES = ['商談中','契約済','失注'];
+
+function rDealsTab(c, deals) {
+  const rows = deals.length === 0 && !showDealForm
+    ? '<div style="padding:32px;text-align:center;color:var(--c-text3);background:var(--c-bg2);border-radius:var(--radius)">案件がありません</div>'
+    : deals.map(d => editDealId === d.id ? rDealForm(d) : (
+      '<div class="deal-card">' +
+      '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">' +
+      '<span class="badge ds-' + esc(d.status||'商談中') + '">' + esc(d.status||'商談中') + '</span>' +
+      '<div style="display:flex;gap:6px">' +
+      '<button class="sm edit-deal-btn" data-did="' + d.id + '">編集</button>' +
+      '<button class="sm danger del-deal-btn" data-did="' + d.id + '">削除</button>' +
+      '</div></div>' +
+      '<div class="info-grid">' +
+      '<div class="info-row"><span class="info-label">商談開始日</span><span>' + (d.negotiationDate ? new Date(d.negotiationDate).toLocaleDateString('ja-JP') : '-') + '</span></div>' +
+      '<div class="info-row"><span class="info-label">契約日</span><span>' + (d.contractDate ? new Date(d.contractDate).toLocaleDateString('ja-JP') : '-') + '</span></div>' +
+      '<div class="info-row"><span class="info-label">契約金額</span><span>' + (d.amount ? parseInt(d.amount).toLocaleString() + '円' : '-') + '</span></div>' +
+      (d.docUrl ? '<div class="info-row"><span class="info-label">書類</span><span><a href="' + esc(d.docUrl) + '" target="_blank">書類を開く →</a></span></div>' : '') +
+      (d.note ? '<div class="info-row" style="grid-column:1/-1"><span class="info-label">備考</span><span style="white-space:pre-wrap">' + esc(d.note) + '</span></div>' : '') +
+      '</div></div>'
+    )).join('');
+  return '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">' +
+    '<div style="font-size:14px;font-weight:600">案件一覧</div>' +
+    '<button class="primary sm" id="add-deal-btn">+ 案件を追加</button>' +
+    '</div>' +
+    (showDealForm && !editDealId ? rDealForm(null) : '') +
+    rows;
+}
+
+function rDealForm(d) {
+  const v = d || {};
+  const fmt = s => s ? s.slice(0,10) : '';
+  const statusOpts = DEAL_STATUSES.map(s =>
+    '<option value="' + s + '"' + ((v.status||'商談中') === s ? ' selected' : '') + '>' + s + '</option>'
+  ).join('');
+  return '<div class="card" style="margin-bottom:12px">' +
+    '<div style="font-size:14px;font-weight:600;margin-bottom:12px">' + (d ? '案件を編集' : '案件を追加') + '</div>' +
+    '<div class="fg2">' +
+    '<div><label>ステータス</label><select id="dl-status">' + statusOpts + '</select></div>' +
+    '<div><label>商談開始日</label><input type="date" id="dl-neg-date" value="' + esc(fmt(v.negotiationDate||'')) + '"></div>' +
+    '<div><label>契約日</label><input type="date" id="dl-contract-date" value="' + esc(fmt(v.contractDate||'')) + '"></div>' +
+    '<div><label>契約金額（円）</label><input type="number" id="dl-amount" value="' + esc(v.amount||'') + '"></div>' +
+    '<div style="grid-column:1/-1"><label>書類URL（Google DriveなどのリンクをURL形式で）</label><input id="dl-doc-url" value="' + esc(v.docUrl||'') + '"></div>' +
+    '</div>' +
+    '<div style="margin-top:10px"><label>備考</label><textarea id="dl-note" rows="2">' + esc(v.note||'') + '</textarea></div>' +
+    '<div class="fa"><button id="deal-cancel">キャンセル</button><button class="primary" id="deal-save">保存</button></div></div>';
+}
+
 function rCallsTab(c,calls) {
   return `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
   <div style="font-size:14px;font-weight:600">架電履歴</div>
@@ -954,7 +1020,7 @@ function rCallForm() {
 function bDetail() {
   const c=st.customers.find(x=>x.id===st.selId);if(!c)return;
   document.getElementById('back').onclick=()=>{st.view='customers';editCid=null;showCallF=false;showAddContact=false;editContactId=null;render();};
-  document.querySelectorAll('.tab[data-tab]').forEach(b=>b.onclick=()=>{detailTab=b.dataset.tab;showCallF=false;showAddContact=false;editContactId=null;render();});
+  document.querySelectorAll('.tab[data-tab]').forEach(b=>b.onclick=()=>{detailTab=b.dataset.tab;showCallF=false;showAddContact=false;editContactId=null;showDealForm=false;editDealId=null;render();});
 
   // 重複バナーの「詳細を開く」リンク
   document.querySelectorAll('.dup-banner-link[data-dup-id]').forEach(el=>{
@@ -1030,6 +1096,44 @@ function bDetail() {
     await deleteDoc(ref('callHistory',b.dataset.cid));st.calls=st.calls.filter(x=>x.id!==b.dataset.cid);toast('削除しました');render();
   });
   bCustForm(editCid?c:null);
+  const elAddDeal=document.getElementById('add-deal-btn');
+  if(elAddDeal)elAddDeal.onclick=()=>{showDealForm=true;editDealId=null;render();};
+  const elDealCancel=document.getElementById('deal-cancel');
+  if(elDealCancel)elDealCancel.onclick=()=>{showDealForm=false;editDealId=null;render();};
+  const elDealSave=document.getElementById('deal-save');
+  if(elDealSave)elDealSave.onclick=async()=>{
+    if(elDealSave.disabled)return; elDealSave.disabled=true;
+    const data={
+      customerId:c.id,
+      status:document.getElementById('dl-status').value,
+      negotiationDate:document.getElementById('dl-neg-date').value,
+      contractDate:document.getElementById('dl-contract-date').value,
+      amount:document.getElementById('dl-amount').value,
+      docUrl:document.getElementById('dl-doc-url').value.trim(),
+      note:document.getElementById('dl-note').value.trim(),
+    };
+    try{
+      if(editDealId){
+        await updateDoc(ref('deals',editDealId),data);
+        const idx=st.deals.findIndex(x=>x.id===editDealId);
+        if(idx>=0)st.deals[idx]={...st.deals[idx],...data};
+        editDealId=null;toast('案件を更新しました');
+      } else {
+        data.createdAt=ts();
+        const r=await addDoc(col('deals'),data);
+        st.deals.push({id:r.id,...data});
+        toast('案件を追加しました');
+      }
+      showDealForm=false;render();
+    }catch(e){alert('保存に失敗しました: '+e.message);}
+    finally{elDealSave.disabled=false;}
+  };
+  document.querySelectorAll('.edit-deal-btn').forEach(b=>b.onclick=()=>{editDealId=b.dataset.did;showDealForm=true;render();});
+  document.querySelectorAll('.del-deal-btn').forEach(b=>b.onclick=async()=>{
+    if(!confirm('この案件を削除しますか？'))return;
+    await deleteDoc(ref('deals',b.dataset.did));
+    st.deals=st.deals.filter(x=>x.id!==b.dataset.did);toast('削除しました');render();
+  });
 }
 
 // ============================================================
