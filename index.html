@@ -857,29 +857,27 @@ function rDetail() {
   ${c.doNotCall?`<div class="do-not-call-banner">⛔ この顧客は架電禁止に設定されています。架電しないでください。</div>`:''}
   ${dupBanner}
   ${editCid===c.id?rCustForm(c):`
-  <div class="card">
-    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;flex-wrap:wrap;gap:10px">
-      <div>
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
+  <div class="card" style="padding:0;overflow:hidden">
+    <div style="display:flex;justify-content:space-between;align-items:stretch;flex-wrap:wrap">
+      <div style="padding:20px 24px;flex:1;min-width:240px;border-left:4px solid var(--c-blue)">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
           <div style="font-size:22px;font-weight:700">${esc(c.companyName)}</div>${rankBadge(c.rank)}
         </div>
-        <div style="font-size:13px;color:var(--c-text2)">${esc([c.prefecture,c.city].filter(Boolean).join(' '))}</div>
+        <div style="font-size:13px;color:var(--c-text2);margin-bottom:16px">${esc([c.prefecture,c.city].filter(Boolean).join(' '))||'&nbsp;'}</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px 24px;font-size:13px">
+          <div><div style="color:var(--c-text3);font-size:11px;margin-bottom:2px">会社電話</div><span>${c.companyPhone?`<a href="tel:${esc(c.companyPhone)}">${esc(c.companyPhone)}</a>`:'—'}</span></div>
+          <div><div style="color:var(--c-text3);font-size:11px;margin-bottom:2px">会社メール</div><span>${esc(c.companyEmail||'—')}</span></div>
+          <div><div style="color:var(--c-text3);font-size:11px;margin-bottom:2px">Webサイト</div><span>${c.website?`<a href="${esc(c.website)}" target="_blank">${esc(c.website)}</a>`:'—'}</span></div>
+          <div><div style="color:var(--c-text3);font-size:11px;margin-bottom:2px">従業員数</div><span>${c.employees?parseInt(c.employees).toLocaleString()+'名':'—'}</span></div>
+          <div><div style="color:var(--c-text3);font-size:11px;margin-bottom:2px">資本金</div><span>${c.capital?parseInt(c.capital).toLocaleString()+'円':'—'}</span></div>
+          <div><div style="color:var(--c-text3);font-size:11px;margin-bottom:2px">更新回数</div><span>${c.renewalCount||'—'}</span></div>
+        </div>
       </div>
-      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-        <label style="margin:0;white-space:nowrap">ランク:</label><select id="rank-sel">${rankOpts}</select>
-        <label style="margin:0;white-space:nowrap">ステータス:</label>
-        <select id="sts">${STATUSES.map(s=>`<option value="${s}"${c.status===s?' selected':''}>${s}</option>`).join('')}</select>
-        <label style="margin:0;white-space:nowrap">担当:</label>
-        <select id="assignee-sel"><option value="">未割り当て</option>${st.users.map(u=>`<option value="${u.id}"${c.assigneeId===u.id?' selected':''}>${esc(u.name)}</option>`).join('')}</select>
+      <div style="padding:20px 24px;background:var(--c-bg2);border-left:1px solid var(--c-border);min-width:200px;display:flex;flex-direction:column;gap:14px;justify-content:center">
+        <div><div style="font-size:11px;color:var(--c-text3);margin-bottom:4px;font-weight:600;letter-spacing:.04em">ランク</div><select id="rank-sel" style="width:100%">${rankOpts}</select></div>
+        <div><div style="font-size:11px;color:var(--c-text3);margin-bottom:4px;font-weight:600;letter-spacing:.04em">ステータス</div><select id="sts" style="width:100%">${STATUSES.map(s=>`<option value="${s}"${c.status===s?' selected':''}>${s}</option>`).join('')}</select></div>
+        <div><div style="font-size:11px;color:var(--c-text3);margin-bottom:4px;font-weight:600;letter-spacing:.04em">担当者</div><select id="assignee-sel" style="width:100%"><option value="">未割り当て</option>${st.users.map(u=>`<option value="${u.id}"${c.assigneeId===u.id?' selected':''}>${esc(u.name)}</option>`).join('')}</select></div>
       </div>
-    </div>
-    <div class="info-grid">
-      <div class="info-row"><span class="info-label">会社電話</span><span>${c.companyPhone?`<a href="tel:${esc(c.companyPhone)}">${esc(c.companyPhone)}</a>`:'-'}</span></div>
-      <div class="info-row"><span class="info-label">会社メール</span><span>${esc(c.companyEmail||'-')}</span></div>
-      <div class="info-row"><span class="info-label">HP</span><span>${c.website?`<a href="${esc(c.website)}" target="_blank">${esc(c.website)}</a>`:'-'}</span></div>
-      <div class="info-row"><span class="info-label">従業員数</span><span>${c.employees?parseInt(c.employees).toLocaleString()+'名':'-'}</span></div>
-      <div class="info-row"><span class="info-label">資本金</span><span>${c.capital?parseInt(c.capital).toLocaleString()+'円':'-'}</span></div>
-      <div class="info-row"><span class="info-label">更新回数</span><span>${c.renewalCount||'-'}</span></div>
     </div>
   </div>`}
   <div class="tabs">
