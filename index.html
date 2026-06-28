@@ -139,12 +139,16 @@
   .csv-dup-badge { display:inline-block; background:#f59e0b; color:#fff; font-size:10px; padding:2px 7px; border-radius:10px; font-weight:600; margin-left:4px; vertical-align:middle; }
   /* ===== フォーム内重複警告 ===== */
   .form-dup-warn { background:#fff8e1; border:1px solid #f59e0b; border-radius:var(--radius); padding:10px 14px; margin-bottom:12px; font-size:13px; color:#b45309; }
+  /* ===== 架電禁止 ===== */
+  .do-not-call-banner { background:var(--c-red-bg); border:2px solid var(--c-red); border-radius:var(--radius); padding:10px 16px; margin-bottom:14px; font-size:13px; color:var(--c-red); font-weight:600; display:flex; align-items:center; gap:10px; }
+  tr.row.dnc td { background:#fff0f0 !important; }
+  tr.row.dnc:hover td { background:#fce0e0 !important; }
 </style>
 </head>
 <body>
 <div id="root"><div class="loading">読み込み中...</div></div>
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { initializeApp, deleteApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getFirestore, collection, doc, getDocs, addDoc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendPasswordResetEmail, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
@@ -284,6 +288,7 @@ async function loadData() {
 async function reload() { await loadData(); }
 
 function toast(msg) {
+  document.querySelectorAll('.toast').forEach(t=>t.remove());
   const t=document.createElement('div');t.className='toast';t.textContent=msg;
   document.body.appendChild(t);setTimeout(()=>t.remove(),2500);
 }
@@ -565,6 +570,7 @@ function rCustList() {
     <div class="pt">顧客リスト（${fil.length}件）</div>
     <div style="display:flex;gap:8px">
       ${!bulkMode?`<button id="start-bulk-btn">一括編集</button>`:''}
+      ${!bulkMode?`<button id="export-csv">CSVエクスポート</button>`:''}
       ${!bulkMode?`<button class="primary" id="add-c">+ 新規追加</button>`:''}
     </div>
   </div>
@@ -604,10 +610,10 @@ function rCustList() {
             ${st.users.map(u=>`<option value="${u.id}"${c.assigneeId===u.id?' selected':''}>${esc(u.name)}</option>`).join('')}
           </select></td>`
         : '';
-      return `<tr class="row${bulkSelected.has(c.id)?' selected':''}" data-id="${c.id}">
+      return `<tr class="row${bulkSelected.has(c.id)?' selected':''}${c.doNotCall?' dnc':''}" data-id="${c.id}">
         ${cbCell}
-        <td><strong>${esc(c.companyName)}</strong>${dupIcon}</td>
-        <td>${esc(c.companyPhone||'-')}</td>
+        <td><strong>${esc(c.companyName)}</strong>${dupIcon}${c.doNotCall?'<span style="margin-left:6px;font-size:10px;background:var(--c-red);color:#fff;padding:2px 6px;border-radius:4px;vertical-align:middle">架電禁止</span>':''}</td>
+        <td>${c.companyPhone?`<a href="tel:${esc(c.companyPhone)}" onclick="event.stopPropagation()">${esc(c.companyPhone)}</a>`:'-'}</td>
         <td style="color:var(--c-text2)">${esc([c.prefecture,c.city].filter(Boolean).join(' ')||'-')}</td>
         <td style="text-align:right">${c.employees?parseInt(c.employees).toLocaleString()+' 名':'-'}</td>
         <td>${rankBadge(c.rank)}</td>
@@ -637,6 +643,21 @@ function bCustList() {
   const bind=(id,key)=>{const el=document.getElementById(id);if(!el)return;el.addEventListener('input',()=>{cf[key]=el.value;render();});el.addEventListener('change',()=>{cf[key]=el.value;render();});};
   bind('fs','search');bind('fst','status');bind('fp','pref');bind('fr','res');bind('fmn','minE');bind('fmx','maxE');bind('fa','assignee');bind('frk','rank');
   document.getElementById('fclr').onclick=()=>{cf={search:'',status:'',pref:'',minE:'',maxE:'',res:'',assignee:'',rank:''};render();};
+  const elExport=document.getElementById('export-csv');
+  if(elExport)elExport.onclick=()=>{
+    const fil=filteredC();
+    const headers=['会社名','電話番号','メールアドレス','HP','都道府県','市区町村','従業員数','資本金','更新回数','ランク','ステータス','担当者','登録日','架電禁止'];
+    const rows=fil.map(c=>{
+      const assignee=st.users.find(u=>u.id===c.assigneeId);
+      return [c.companyName,c.companyPhone,c.companyEmail,c.website,c.prefecture,c.city,c.employees,c.capital,c.renewalCount,c.rank,c.status,assignee?assignee.name:'',c.createdAt?new Date(c.createdAt).toLocaleDateString('ja-JP'):'',c.doNotCall?'禁止':''].map(v=>`"${String(v||'').replace(/"/g,'""')}"`);
+    });
+    const csv=[headers.join(','),...rows.map(r=>r.join(','))].join('\n');
+    const blob=new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8;'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');a.href=url;a.download=`顧客リスト_${new Date().toLocaleDateString('ja-JP').replace(/\//g,'')}.csv`;
+    a.click();URL.revokeObjectURL(url);
+    toast(`${fil.length}件をエクスポートしました`);
+  };
 
   // 一括編集開始ボタン（バナー内・ヘッダー内）
   const startBulkBanner = document.getElementById('start-bulk');
@@ -769,15 +790,20 @@ function bCustForm(customer) {
   if(saveEl) saveEl.onclick=async()=>{
     const data=getCustFormData();
     if(!data.companyName){alert('会社名は必須です');return;}
-    if(customer){
-      await updateDoc(ref('customers',customer.id),data);
-      Object.assign(customer,data);editCid=null;toast('更新しました');
-    } else {
-      data.status='未架電';data.assigneeId='';data.createdAt=ts();
-      const r=await addDoc(col('customers'),data);
-      st.customers.push({id:r.id,...data});showAddC=false;toast('追加しました');
-    }
-    await reload();render();
+    if(saveEl.disabled)return;
+    saveEl.disabled=true;
+    try{
+      if(customer){
+        await updateDoc(ref('customers',customer.id),data);
+        Object.assign(customer,data);editCid=null;toast('更新しました');
+      } else {
+        data.status='未架電';data.assigneeId='';data.createdAt=ts();
+        const r=await addDoc(col('customers'),data);
+        st.customers.push({id:r.id,...data});showAddC=false;toast('追加しました');
+      }
+      await reload();render();
+    }catch(e){alert('保存に失敗しました: '+e.message);}
+    finally{saveEl.disabled=false;}
   };
 }
 
@@ -803,10 +829,12 @@ function rDetail() {
         </div>`).join('')}
       </div>` : '';
 
-  return `<div style="margin:24px 0 16px;display:flex;gap:8px;align-items:center">
+  return `<div style="margin:24px 0 16px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
   <button id="back">← 戻る</button>
   ${editCid!==c.id?`<button id="edit-c">編集</button><button class="danger" id="del-c">削除</button>`:''}
+  ${editCid!==c.id?`<button id="dnc-toggle" style="margin-left:auto;${c.doNotCall?'background:var(--c-red);color:#fff;border-color:var(--c-red)':''}">${c.doNotCall?'架電禁止を解除':'⛔ 架電禁止に設定'}</button>`:''}
   </div>
+  ${c.doNotCall?`<div class="do-not-call-banner">⛔ この顧客は架電禁止に設定されています。架電しないでください。</div>`:''}
   ${dupBanner}
   ${editCid===c.id?rCustForm(c):`
   <div class="card">
@@ -826,7 +854,7 @@ function rDetail() {
       </div>
     </div>
     <div class="info-grid">
-      <div class="info-row"><span class="info-label">会社電話</span><span>${esc(c.companyPhone||'-')}</span></div>
+      <div class="info-row"><span class="info-label">会社電話</span><span>${c.companyPhone?`<a href="tel:${esc(c.companyPhone)}">${esc(c.companyPhone)}</a>`:'-'}</span></div>
       <div class="info-row"><span class="info-label">会社メール</span><span>${esc(c.companyEmail||'-')}</span></div>
       <div class="info-row"><span class="info-label">HP</span><span>${c.website?`<a href="${esc(c.website)}" target="_blank">${esc(c.website)}</a>`:'-'}</span></div>
       <div class="info-row"><span class="info-label">従業員数</span><span>${c.employees?parseInt(c.employees).toLocaleString()+'名':'-'}</span></div>
@@ -933,6 +961,14 @@ function bDetail() {
   });
 
   const elEditC=document.getElementById('edit-c');if(elEditC)elEditC.onclick=()=>{editCid=c.id;render();};
+  const elDnc=document.getElementById('dnc-toggle');
+  if(elDnc)elDnc.onclick=async()=>{
+    const newVal=!c.doNotCall;
+    const msg=newVal?'この顧客を架電禁止に設定しますか？\n一覧で赤く強調表示されます。':'架電禁止を解除しますか？';
+    if(!confirm(msg))return;
+    try{await updateDoc(ref('customers',c.id),{doNotCall:newVal});c.doNotCall=newVal;toast(newVal?'架電禁止に設定しました':'架電禁止を解除しました');render();}
+    catch(e){alert('更新に失敗しました: '+e.message);}
+  };
   const elDelC=document.getElementById('del-c');
   if(elDelC)elDelC.onclick=async()=>{
     if(!confirm(`「${c.companyName}」を削除しますか？担当者・架電履歴も全て削除されます。`))return;
@@ -968,11 +1004,25 @@ function bDetail() {
   const elHCancel=document.getElementById('h-cancel');if(elHCancel)elHCancel.onclick=()=>{showCallF=false;render();};
   const elHSave=document.getElementById('h-save');
   if(elHSave)elHSave.onclick=async()=>{
+    if(elHSave.disabled)return;
+    elHSave.disabled=true;
     const data={customerId:c.id,userId:st.user.id,calledAt:document.getElementById('h-dt').value,result:document.getElementById('h-res').value,memo:document.getElementById('h-memo').value.trim(),nextActionAt:document.getElementById('h-nat').value,nextActionContent:document.getElementById('h-nac').value.trim(),createdAt:ts()};
-    const r=await addDoc(col('callHistory'),data);st.calls.push({id:r.id,...data});
-    if(data.result==='アポ獲得'&&(c.status==='未架電'||c.status==='架電済')){await updateDoc(ref('customers',c.id),{status:'アポ獲得'});c.status='アポ獲得';}
-    else if(c.status==='未架電'){await updateDoc(ref('customers',c.id),{status:'架電済'});c.status='架電済';}
-    showCallF=false;toast('架電記録を保存しました');render();
+    try{
+      const r=await addDoc(col('callHistory'),data);st.calls.push({id:r.id,...data});
+      // ステータス自動連動
+      const RESULT_STATUS_MAP={'アポ獲得':'アポ獲得','資料送付':'ナーチャリング','担当者NG':'架電NG','受付NG':'架電NG'};
+      const suggestStatus=RESULT_STATUS_MAP[data.result];
+      if(suggestStatus&&c.status!==suggestStatus){
+        if(confirm(`架電結果「${data.result}」に対してステータスを「${suggestStatus}」に変更しますか？`)){
+          await updateDoc(ref('customers',c.id),{status:suggestStatus});c.status=suggestStatus;
+        }
+      } else if(data.result==='アポ獲得'&&(c.status==='未架電'||c.status==='架電済')){
+        await updateDoc(ref('customers',c.id),{status:'アポ獲得'});c.status='アポ獲得';
+      } else if(c.status==='未架電'){
+        await updateDoc(ref('customers',c.id),{status:'架電済'});c.status='架電済';
+      }
+      showCallF=false;toast('架電記録を保存しました');render();
+    }catch(e){alert('保存に失敗しました: '+e.message);elHSave.disabled=false;}
   };
   document.querySelectorAll('.del-call').forEach(b=>b.onclick=async e=>{
     e.stopPropagation();if(!confirm('この架電記録を削除しますか？'))return;
@@ -987,6 +1037,23 @@ function bDetail() {
 function rMyList() {
   const viewUser=st.users.find(u=>u.id===assignViewUid)||st.user;
   const assigned=st.customers.filter(c=>c.assigneeId===viewUser.id);
+  const now=new Date();
+
+  // 各顧客の最新次回アクションを取得
+  const getNextAction=cid=>{
+    const calls=st.calls.filter(h=>h.customerId===cid&&h.nextActionAt).sort((a,b)=>new Date(b.calledAt)-new Date(a.calledAt));
+    return calls.length?{at:calls[0].nextActionAt,content:calls[0].nextActionContent}:null;
+  };
+
+  // 次回アクション日でソート（期限近い順・未設定は後ろ）
+  const withAction=assigned.map(c=>({...c,_na:getNextAction(c.id)}));
+  withAction.sort((a,b)=>{
+    if(a._na&&b._na)return new Date(a._na.at)-new Date(b._na.at);
+    if(a._na)return -1;if(b._na)return 1;return 0;
+  });
+
+  const overdueCount=withAction.filter(c=>c._na&&new Date(c._na.at)<now).length;
+
   return `<div class="ph"><div class="pt">マイリスト</div></div>
   <div style="margin-bottom:16px">
     <div style="font-size:12px;color:var(--c-text2);margin-bottom:8px">表示するユーザーを選択：</div>
@@ -994,19 +1061,30 @@ function rMyList() {
       ${st.users.map(u=>`<button class="user-chip${assignViewUid===u.id?' active':''}" data-uid="${u.id}">${esc(u.name)}（${st.customers.filter(c=>c.assigneeId===u.id).length}件）</button>`).join('')}
     </div>
   </div>
+  ${overdueCount>0?`<div style="background:var(--c-red-bg);border:1px solid var(--c-red);border-radius:var(--radius);padding:10px 16px;margin-bottom:12px;font-size:13px;color:var(--c-red);font-weight:600">⚠️ 次回アクション期限が過ぎている顧客が ${overdueCount} 件あります</div>`:''}
   <div style="font-size:14px;font-weight:600;margin-bottom:12px">${esc(viewUser.name)} の割り当てリスト（${assigned.length}件）</div>
   <div class="tw"><table><thead><tr>
-    <th>会社名</th><th>電話番号</th><th>地域</th><th>ランク</th><th>ステータス</th>
+    <th>会社名</th><th>電話番号</th><th>地域</th><th>ランク</th><th>ステータス</th><th>次回アクション</th>
   </tr></thead><tbody>
-  ${assigned.length===0
-    ?`<tr><td colspan="5" style="text-align:center;color:var(--c-text3);padding:32px">割り当てられた顧客がありません</td></tr>`
-    :assigned.map(c=>`<tr class="row" data-id="${c.id}">
-    <td><strong>${esc(c.companyName)}</strong></td>
-    <td>${esc(c.companyPhone||'-')}</td>
-    <td style="color:var(--c-text2)">${esc([c.prefecture,c.city].filter(Boolean).join(' ')||'-')}</td>
-    <td>${rankBadge(c.rank)}</td>
-    <td><span class="badge s-${c.status||'未架電'}">${c.status||'未架電'}</span></td>
-  </tr>`).join('')}
+  ${withAction.length===0
+    ?`<tr><td colspan="6" style="text-align:center;color:var(--c-text3);padding:32px">割り当てられた顧客がありません</td></tr>`
+    :withAction.map(c=>{
+      const na=c._na;
+      const isOverdue=na&&new Date(na.at)<now;
+      const naCell=na
+        ?`<td style="font-size:12px;${isOverdue?'color:var(--c-red);font-weight:600':'color:var(--c-text2)'}">
+            ${isOverdue?'⚠️ ':''}${new Date(na.at).toLocaleString('ja-JP',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'})}
+            ${na.content?`<div style="font-size:11px;color:var(--c-text3)">${esc(na.content)}</div>`:''}
+          </td>`
+        :`<td style="color:var(--c-text3);font-size:12px">-</td>`;
+      return `<tr class="row" data-id="${c.id}">
+      <td><strong>${esc(c.companyName)}</strong></td>
+      <td>${c.companyPhone?`<a href="tel:${esc(c.companyPhone)}" onclick="event.stopPropagation()">${esc(c.companyPhone)}</a>`:'-'}</td>
+      <td style="color:var(--c-text2)">${esc([c.prefecture,c.city].filter(Boolean).join(' ')||'-')}</td>
+      <td>${rankBadge(c.rank)}</td>
+      <td><span class="badge s-${c.status||'未架電'}">${c.status||'未架電'}</span></td>
+      ${naCell}
+    </tr>`;}).join('')}
   </tbody></table></div>`;
 }
 function bMyList() {
@@ -1142,11 +1220,21 @@ function bImport() {
           status:'未架電', assigneeId:'', createdAt:ts()
         };
       }).filter(x=>x.companyName);
-    for(const item of items){const r=await addDoc(col('customers'),item);st.customers.push({id:r.id,...item});}
-    const skipped=importSkipSet.size;
-    importPrev=[];importTxt='';importRank='';importSkipSet.clear();
-    toast(`${items.length}件をインポートしました${skipped?`（${skipped}件スキップ）`:''}`);
-    await reload();st.view='customers';render();
+    try{
+      const BATCH=20;let success=0,failed=0;
+      for(let i=0;i<items.length;i+=BATCH){
+        const chunk=items.slice(i,i+BATCH);
+        const results=await Promise.allSettled(chunk.map(item=>addDoc(col('customers'),item)));
+        results.forEach((res,j)=>{
+          if(res.status==='fulfilled'){st.customers.push({id:res.value.id,...chunk[j]});success++;}
+          else failed++;
+        });
+      }
+      const skipped=importSkipSet.size;
+      importPrev=[];importTxt='';importRank='';importSkipSet.clear();
+      toast(`${success}件をインポートしました${failed?`（${failed}件失敗）`:''}${skipped?`（${skipped}件スキップ）`:''}`);
+      await reload();st.view='customers';render();
+    }catch(e){alert('インポートに失敗しました: '+e.message);elImp.disabled=false;elImp.textContent='インポート';}
   };
 }
 
@@ -1214,7 +1302,16 @@ function bSettings() {
       if(dup){errEl.textContent='このメールアドレスは既に登録されています';errEl.style.display='block';return;}
       elUfSave.disabled=true;
       try{
-        const cred=await createUserWithEmailAndPassword(auth,email,pw);
+        // サブアプリを使い現在の管理者セッションを保護する
+        const subApp=initializeApp(firebaseConfig,'sub-'+Date.now());
+        const subAuth=getAuth(subApp);
+        let cred;
+        try{
+          cred=await createUserWithEmailAndPassword(subAuth,email,pw);
+        }finally{
+          await signOut(subAuth).catch(()=>{});
+          await deleteApp(subApp).catch(()=>{});
+        }
         const fullData={...data,email,uid:cred.user.uid,createdAt:ts()};
         const r=await addDoc(col('users'),fullData);
         st.users.push({id:r.id,...fullData});showAddU=false;toast('ユーザーを追加しました');render();
