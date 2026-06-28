@@ -778,6 +778,9 @@ function rCustForm(c) {
     <div><label>更新回数</label><input id="cf-re" type="number" value="${esc(v.renewalCount||'')}"></div>
     <div><label>都道府県</label><input id="cf-pf" value="${esc(v.prefecture||'')}"></div>
     <div><label>市区町村</label><input id="cf-ct" value="${esc(v.city||'')}"></div>
+    <div><label>〒（郵便番号）</label><input id="cf-zip" placeholder="例: 100-0001" value="${esc(v.postalCode||'')}"></div>
+    <div><label>住所（番地以降）</label><input id="cf-addr" value="${esc(v.address||'')}"></div>
+    <div style="grid-column:1/-1"><label>住所ふりがな</label><input id="cf-addr-kana" value="${esc(v.addressKana||'')}"></div>
     <div><label>ランク</label><select id="cf-rk">${rankOpts}</select></div>
   </div>
   <div class="fa"><button id="cf-cancel">キャンセル</button><button class="primary" id="cf-save">保存</button></div></div>`;
@@ -793,6 +796,9 @@ function getCustFormData() {
     renewalCount:document.getElementById('cf-re').value,
     prefecture:document.getElementById('cf-pf').value.trim(),
     city:document.getElementById('cf-ct').value.trim(),
+    postalCode:document.getElementById('cf-zip').value.trim(),
+    address:document.getElementById('cf-addr').value.trim(),
+    addressKana:document.getElementById('cf-addr-kana').value.trim(),
     rank:document.getElementById('cf-rk').value,
   };
 }
@@ -875,6 +881,9 @@ function rDetail() {
           <div><div style="color:var(--c-text3);font-size:11px;margin-bottom:2px">会社電話</div><span>${c.companyPhone?`<a href="tel:${esc(c.companyPhone)}">${esc(c.companyPhone)}</a>`:'—'}</span></div>
           <div><div style="color:var(--c-text3);font-size:11px;margin-bottom:2px">会社メール</div><span>${esc(c.companyEmail||'—')}</span></div>
           <div><div style="color:var(--c-text3);font-size:11px;margin-bottom:2px">Webサイト</div><span>${c.website?`<a href="${esc(c.website)}" target="_blank">${esc(c.website)}</a>`:'—'}</span></div>
+          <div><div style="color:var(--c-text3);font-size:11px;margin-bottom:2px">〒</div><span>${esc(c.postalCode||'—')}</span></div>
+          <div><div style="color:var(--c-text3);font-size:11px;margin-bottom:2px">住所（番地以降）</div><span>${esc(c.address||'—')}</span></div>
+          <div><div style="color:var(--c-text3);font-size:11px;margin-bottom:2px">住所ふりがな</div><span>${esc(c.addressKana||'—')}</span></div>
           <div><div style="color:var(--c-text3);font-size:11px;margin-bottom:2px">従業員数</div><span>${c.employees?parseInt(c.employees).toLocaleString()+'名':'—'}</span></div>
           <div><div style="color:var(--c-text3);font-size:11px;margin-bottom:2px">資本金</div><span>${c.capital?parseInt(c.capital).toLocaleString()+'円':'—'}</span></div>
           <div><div style="color:var(--c-text3);font-size:11px;margin-bottom:2px">更新回数</div><span>${c.renewalCount||'—'}</span></div>
@@ -951,78 +960,92 @@ function exportShinseisho(dealId) {
   const c = st.customers.find(x => x.id === d.customerId) || {};
   const ct = st.contacts.find(x => x.id === d.contactId) || {};
 
-  function e(v) {
-    return String(v||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  }
-  function fmtMoney(v) { return v ? parseInt(v).toLocaleString() : ''; }
+  function e(v) { return String(v||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function fmtMoney(v) { return v ? '¥ ' + parseInt(v).toLocaleString() : ''; }
   function fmtDate(s) {
     if (!s) return '';
     const dt = new Date(s);
     return dt.getFullYear() + '年' + (dt.getMonth()+1) + '月' + dt.getDate() + '日';
   }
   const today = fmtDate(new Date().toISOString().slice(0,10));
-  const addr = e([c.prefecture, c.city].filter(Boolean).join(''));
+  const fullAddr = e([c.prefecture, c.city, c.address].filter(Boolean).join(''));
+  const zip = c.postalCode ? '〒' + e(c.postalCode) : '〒';
+  const chk = '&#9633;';
+  const sec = t => '<tr><td colspan="5" class="sec">' + t + '</td></tr>';
+  const stamp = '<div style="border:1px dashed #bbb;border-radius:50%;width:56px;height:56px;margin:auto;display:flex;align-items:center;justify-content:center;color:#ccc;font-size:12px">印</div>';
 
-  const row = (label, val, label2, val2) => {
-    if (label2 !== undefined) {
-      return '<tr><td class="lbl">' + label + '</td><td>' + val + '</td>'
-           + '<td class="lbl">' + (label2||'') + '</td><td>' + (val2||'') + '</td></tr>';
-    }
-    return '<tr><td class="lbl">' + label + '</td><td colspan="3">' + val + '</td></tr>';
-  };
-  const sec = t => '<tr><td colspan="4" class="sec">' + t + '</td></tr>';
+  const contractorRows =
+    '<tr><td class="lbl">会社名</td><td colspan="3">' + e(c.companyName) + '</td>'
+      + '<td rowspan="6" style="text-align:center;width:75px;padding:6px"><div style="font-size:9px;color:#666;margin-bottom:3px">押印</div>' + stamp + '</td></tr>'
+    + '<tr><td class="lbl" rowspan="3">所在地</td><td colspan="3" style="font-size:10px">' + zip + '</td></tr>'
+    + '<tr><td colspan="3" style="font-size:9px;color:#888">（ふりがな）　' + e(c.addressKana) + '</td></tr>'
+    + '<tr><td colspan="3">' + fullAddr + '</td></tr>'
+    + '<tr><td class="lbl" rowspan="2">担当者名</td>'
+      + '<td style="font-size:9px;color:#888">（ふりがな）</td>'
+      + '<td class="lbl" rowspan="2">部署・役職</td>'
+      + '<td style="font-size:9px;color:#888">（部署）　' + e(ct.department) + '</td></tr>'
+    + '<tr><td>' + e(ct.name) + '</td><td>（役職）　' + e(ct.position) + '</td></tr>'
+    + '<tr><td class="lbl">電話番号</td><td>' + e(ct.phone)
+      + '</td><td class="lbl">メールアドレス</td><td colspan="2">' + e(ct.email) + '</td></tr>';
 
-  const body = [
-    '<tr><td colspan="4" class="ttl">サービス申込書</td></tr>',
-    row('申込日', today),
-    sec('ゴ契約者情報'),
-    '<tr><td class="lbl">会社名</td><td colspan="2">' + e(c.companyName) + '</td>'
-      + '<td rowspan="5" style="text-align:center;width:80px"><div style="border:1px dashed #aaa;border-radius:50%;width:58px;height:58px;margin:auto;display:flex;align-items:center;justify-content:center;color:#bbb;font-size:11px">印</div></td></tr>',
-    '<tr><td class="lbl">所在地</td><td colspan="2">〒　' + addr + '</td></tr>',
-    '<tr><td class="lbl">担当者名</td><td colspan="2">' + e(ct.name) + '</td></tr>',
-    '<tr><td class="lbl">部署・役職</td><td>' + e(ct.department) + '</td><td>' + e(ct.position) + '</td></tr>',
-    '<tr><td class="lbl">電話番号</td><td>' + e(ct.phone) + '</td><td class="lbl">メールアドレス</td></tr>',
-    '<tr><td class="lbl">メール</td><td colspan="3">' + e(ct.email) + '</td></tr>',
-    sec('ゴ請求先情報'),
-    '<tr><td colspan="4" style="background:#fafafa;font-size:10px;color:#666;padding:5px 8px">□　契約者情報と同じ　　導なる場合は以下に記入</td></tr>',
-    row('請求先会社名', ''),
-    row('所在地', '〒'),
-    row('担当者名', '', '部署・役職', ''),
-    row('電話番号', '', 'メールアドレス', ''),
-    sec('契約条件'),
-    row('契約開始日', fmtDate(d.contractStartDate)),
-    row('プラン名', e(d.planName), 'オプション', e(d.optionName)),
-    row('初期費用', '￥ ' + fmtMoney(d.initialFee) + '（税込）', '月額利用料', '￥ ' + fmtMoney(d.monthlyFee) + '（税込）'),
-    row('利用期間', (d.periodMonths||'') + 'か月（※以後、自動更新）', '支払い金額合計', '￥ ' + fmtMoney(d.totalAmount) + '（税込）'),
-    row('支払い方法', '□クレジットカード　□銀行振り込み　□口座振替'),
-    row('請求締日', e(d.billingClosingDay), 'お支払日', e(d.paymentDay)),
-    row('解約', '契約満了日の30日前までに所定の方法でお申し出ください。'),
-    sec('ゴ確認事項'),
-    '<tr><td colspan="4" style="padding:8px 10px;line-height:2">'
+  const billingRows =
+    '<tr><td colspan="5" style="background:#f9f9f9;padding:5px 8px;font-size:10px;color:#555">'
+      + chk + '　契約者情報と同じ　　異なる場合は以下に記入</td></tr>'
+    + '<tr><td class="lbl">請求先会社名</td><td colspan="4"></td></tr>'
+    + '<tr><td class="lbl" rowspan="3">所在地</td><td colspan="4" style="font-size:10px">〒</td></tr>'
+    + '<tr><td colspan="4" style="font-size:9px;color:#888">（ふりがな）</td></tr>'
+    + '<tr><td colspan="4"></td></tr>'
+    + '<tr><td class="lbl" rowspan="2">担当者名</td>'
+      + '<td style="font-size:9px;color:#888">（ふりがな）</td>'
+      + '<td class="lbl" rowspan="2">部署・役職</td>'
+      + '<td style="font-size:9px;color:#888">（部署）</td></tr>'
+    + '<tr><td></td><td>（役職）</td></tr>'
+    + '<tr><td class="lbl">電話番号</td><td></td><td class="lbl">メールアドレス</td><td colspan="2"></td></tr>';
+
+  const contractRows =
+    '<tr><td class="lbl">契約開始日</td><td colspan="4">' + fmtDate(d.contractStartDate) + '</td></tr>'
+    + '<tr><td class="lbl">プラン名</td><td>' + e(d.planName) + '</td><td class="lbl">オプション</td><td colspan="2">' + e(d.optionName) + '</td></tr>'
+    + '<tr><td class="lbl">初期費用</td><td>' + fmtMoney(d.initialFee) + '（税込）</td><td class="lbl">月額利用料</td><td colspan="2">' + fmtMoney(d.monthlyFee) + '（税込）</td></tr>'
+    + '<tr><td class="lbl">利用期間</td><td>' + (d.periodMonths||'') + 'か月（※以後、自動更新）</td><td class="lbl">支払い金額合計</td><td colspan="2">' + fmtMoney(d.totalAmount) + '（税込）</td></tr>'
+    + '<tr><td class="lbl">支払い方法</td><td colspan="4">' + chk + 'クレジットカード　　' + chk + '銀行振り込み　　' + chk + '口座振替</td></tr>'
+    + '<tr><td class="lbl">請求締日</td><td>' + e(d.billingClosingDay) + '</td><td class="lbl">お支払日</td><td colspan="2">' + e(d.paymentDay) + '</td></tr>'
+    + '<tr><td class="lbl">解約</td><td colspan="4">契約満了日の30日前までに所定の方法でお申し出ください。</td></tr>';
+
+  const confirmRows =
+    '<tr><td colspan="5" style="padding:8px 10px;line-height:1.9;font-size:10px">'
       + '私は、以下の内容を確認し、同意のうえ申し込みます。<br>'
-      + '　● 利用規約を確認し、その内容に同意します。<br>'
-      + '　● プライバシーポリシーを確認し、その内容に同意します。<br>'
-      + '　● AIによる生成結果については、利用者自身が最終確認を行うものとします。<br>'
-      + '　● 月額料金は契約開始日より発生します。<br><br>'
-      + '<span style="font-size:10px;color:#666">利用規約：https://____________________ &nbsp;&nbsp; プライバシーポリシー：https://____________________</span>'
-      + '</td></tr>',
-    '<tr><td class="lbl" style="text-align:center">申込者署名</td>'
-      + '<td colspan="2" style="height:65px"></td>'
-      + '<td style="text-align:center;width:80px"><div style="border:1px dashed #aaa;border-radius:50%;width:58px;height:58px;margin:auto;display:flex;align-items:center;justify-content:center;color:#bbb;font-size:11px">印</div></td></tr>',
-  ].join('');
+      + '　&#9679; 利用規約を確認し、その内容に同意します。<br>'
+      + '　&#9679; プライバシーポリシーを確認し、その内容に同意します。<br>'
+      + '　&#9679; AIによる生成結果については、利用者自身が最終確認を行うものとします。<br>'
+      + '　&#9679; 月額料金は契約開始日より発生します。<br><br>'
+      + '<span style="color:#888">利用規約：https://____________________</span><br>'
+      + '<span style="color:#888">プライバシーポリシー：https://____________________</span>'
+      + '</td></tr>'
+    + '<tr><td class="lbl" style="text-align:center">申込者署名</td>'
+      + '<td colspan="3" style="height:62px"></td>'
+      + '<td style="text-align:center;width:75px">' + stamp + '</td></tr>';
 
-  const page = '<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"><title>サービス申込書</title>'
-    + '<style>@page{size:A4;margin:12mm}*{box-sizing:border-box;margin:0;padding:0}'
-    + 'body{font-family:"MS Gothic","Hiragino Kaku Gothic ProN",sans-serif;font-size:11px;color:#111}'
+  const css = '@page{size:A4;margin:12mm}*{box-sizing:border-box;margin:0;padding:0}'
+    + 'body{font-family:"MS Gothic","Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;font-size:11px;color:#111}'
     + 'table{width:100%;border-collapse:collapse}'
-    + 'td{border:1px solid #999;padding:5px 7px;vertical-align:middle}'
+    + 'td{border:1px solid #aaa;padding:5px 7px;vertical-align:middle}'
     + '.ttl{background:#444;color:#fff;font-size:15px;font-weight:bold;text-align:center;padding:10px}'
     + '.sec{background:#e8f0fe;color:#1a56a0;font-weight:bold;font-size:11px;padding:5px 8px}'
-    + '.lbl{background:#f8f9fa;color:#555;width:22%;font-size:10px}'
-    + '@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}'
-    + '</style></head><body><table>' + body + '</table></body></html>';
+    + '.lbl{background:#f8f9fa;color:#555;width:18%;font-size:10px}'
+    + '@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}';
 
-  const win = window.open('', '_blank', 'width=860,height=1100');
+  const body =
+    '<tr><td colspan="5" class="ttl">サービス申込書</td></tr>'
+    + '<tr><td class="lbl">申込日</td><td colspan="4">' + today + '</td></tr>'
+    + sec('ご契約者情報') + contractorRows
+    + sec('ご請求先情報') + billingRows
+    + sec('契約条件') + contractRows
+    + sec('ご確認事項') + confirmRows;
+
+  const page = '<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"><title>サービス申込書</title>'
+    + '<style>' + css + '</style></head><body><table>' + body + '</table></body></html>';
+
+  const win = window.open('', '_blank', 'width=860,height=1200');
   win.document.write(page);
   win.document.close();
   setTimeout(() => win.print(), 800);
