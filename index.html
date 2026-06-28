@@ -847,6 +847,9 @@ function bCustForm(customer) {
         if(ctEl) ctEl.value = city;
         if(resultEl) resultEl.textContent = pref + city;
         resultEl.style.color = 'var(--c-green)';
+        const kana = (r.kana1||'') + (r.kana2||'') + (r.kana3||'');
+        const kanaEl = document.getElementById('cf-addr-kana');
+        if(kanaEl && kana) kanaEl.value = kana;
       } else {
         if(resultEl) { resultEl.textContent = '該当する住所が見つかりません'; resultEl.style.color = 'var(--c-red)'; }
       }
@@ -1161,7 +1164,7 @@ function rDealsTab(c,deals,contacts){
       '<div style="display:flex;align-items:center;gap:8px"><span class="badge ds-'+esc(d.status||'商談中')+'">'+esc(d.status||'商談中')+'</span>'+
       (d.planName?'<span style="font-size:13px;font-weight:600">'+esc(d.planName)+'</span>':'')+'</div>'+
       '<div style="display:flex;gap:6px">'+
-      '<button class="sm export-deal-btn" data-did="'+d.id+'">📄 申込書を出力</button>'+
+      (()=>{const lc=st.legalChecks.find(x=>x.customerId===c.id);const ok=lc&&lc.status==='承認済み';return ok?'<button class="sm export-deal-btn" data-did="'+d.id+'">📄 申込書を出力</button>':'<button class="sm" disabled title="リーガルチェックが完了していないため、出力ができません" style="opacity:0.4;cursor:not-allowed">📄 申込書を出力</button>';})()+'
       '<button class="sm edit-deal-btn" data-did="'+d.id+'">編集</button>'+
       '<button class="sm danger del-deal-btn" data-did="'+d.id+'">削除</button>'+
       '</div></div>'+
