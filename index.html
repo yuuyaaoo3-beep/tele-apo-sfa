@@ -777,16 +777,16 @@ function rCustForm(c) {
     <div><label>従業員数</label><input id="cf-em" type="number" value="${esc(v.employees||'')}"></div>
     <div><label>資本金（円）</label><input id="cf-ca" type="number" value="${esc(v.capital||'')}"></div>
     <div><label>更新回数</label><input id="cf-re" type="number" value="${esc(v.renewalCount||'')}"></div>
-    <input type="hidden" id="cf-pf" value="${esc(v.prefecture||'')}">
-    <input type="hidden" id="cf-ct" value="${esc(v.city||'')}">
     <div style="grid-column:1/-1">
       <label>〒（郵便番号）</label>
       <div style="display:flex;gap:8px;align-items:center;margin-top:4px">
         <input id="cf-zip" placeholder="例: 1000001（ハイフン不要）" value="${esc(v.postalCode||'')}" style="max-width:200px">
         <button type="button" id="cf-zip-search" class="sm">住所を検索</button>
-        <span id="cf-zip-result" style="font-size:12px;color:var(--c-text2)">${v.prefecture||v.city?esc((v.prefecture||'')+(v.city||'')):''}</span>
+        <span id="cf-zip-result" style="font-size:12px;color:var(--c-red)"></span>
       </div>
     </div>
+    <div><label>都道府県</label><input id="cf-pf" placeholder="検索で自動入力" value="${esc(v.prefecture||'')}"></div>
+    <div><label>市区町村</label><input id="cf-ct" placeholder="検索で自動入力" value="${esc(v.city||'')}"></div>
     <div><label>住所（番地以降）</label><input id="cf-addr" value="${esc(v.address||'')}"></div>
     <div style="grid-column:1/-1"><label>住所ふりがな</label><input id="cf-addr-kana" value="${esc(v.addressKana||'')}"></div>
     <div><label>ランク</label><select id="cf-rk">${rankOpts}</select></div>
