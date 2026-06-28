@@ -202,6 +202,13 @@ let editCallId = null;
 
 const ts = () => new Date().toISOString();
 function debounce(fn, ms) { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; }
+function calcTotal(){
+  const ini=parseInt(document.getElementById('dl-initial')?.value)||0;
+  const mon=parseInt(document.getElementById('dl-monthly')?.value)||0;
+  const per=parseInt(document.getElementById('dl-period')?.value)||0;
+  const tot=document.getElementById('dl-total');
+  if(tot&&(ini||mon||per))tot.value=ini+mon*per;
+}
 const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 const isUrl = s => /^https?:\/\/.+/.test((s||'').trim());
 const rankBadge = r => r ? `<span class="badge r-${r}">${r}ランク</span>` : `<span class="badge r-未設定">未設定</span>`;
@@ -887,7 +894,7 @@ function rDetail() {
   </div>
   ${detailTab==='contacts'?rContactsTab(c,contacts):''}
   ${detailTab==='calls'?rCallsTab(c,calls):''}
-  ${detailTab==='deals'?rDealsTab(c,cDeals):''}`;
+  ${detailTab==='deals'?rDealsTab(c,cDeals,contacts):''}`;
 }
 
 function rContactsTab(c,contacts) {
@@ -939,49 +946,74 @@ function rContactForm(c,ct) {
 // ============================================================
 const DEAL_STATUSES = ['商談中','契約済','失注'];
 
-function rDealsTab(c, deals) {
-  const rows = deals.length === 0 && !showDealForm
-    ? '<div style="padding:32px;text-align:center;color:var(--c-text3);background:var(--c-bg2);border-radius:var(--radius)">案件がありません</div>'
-    : deals.map(d => editDealId === d.id ? rDealForm(d) : (
-      '<div class="deal-card">' +
-      '<div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:10px;border-bottom:1px solid var(--c-border);margin-bottom:12px">' +
-      '<span class="badge ds-' + esc(d.status||'商談中') + '">' + esc(d.status||'商談中') + '</span>' +
-      '<div style="display:flex;gap:6px">' +
-      '<button class="sm edit-deal-btn" data-did="' + d.id + '">編集</button>' +
-      '<button class="sm danger del-deal-btn" data-did="' + d.id + '">削除</button>' +
-      '</div></div>' +
-      '<div class="info-grid">' +
-      '<div class="info-row"><span class="info-label">商談開始日</span><span>' + (d.negotiationDate ? new Date(d.negotiationDate).toLocaleDateString('ja-JP') : '-') + '</span></div>' +
-      '<div class="info-row"><span class="info-label">契約日</span><span>' + (d.contractDate ? new Date(d.contractDate).toLocaleDateString('ja-JP') : '-') + '</span></div>' +
-      '<div class="info-row"><span class="info-label">契約金額</span><span>' + (d.amount ? parseInt(d.amount).toLocaleString() + '円' : '-') + '</span></div>' +
-      (d.docUrl ? '<div class="info-row"><span class="info-label">書類</span><span><a href="' + esc(d.docUrl) + '" target="_blank">書類を開く →</a></span></div>' : '') +
-      (d.note ? '<div class="info-row" style="grid-column:1/-1"><span class="info-label">備考</span><span style="white-space:pre-wrap">' + esc(d.note) + '</span></div>' : '') +
-      '</div></div>'
-    )).join('');
-  return '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">' +
-    '<div style="font-size:14px;font-weight:600">案件一覧</div>' +
-    '<button class="primary sm" id="add-deal-btn">+ 案件を追加</button>' +
-    '</div>' +
-    (showDealForm && !editDealId ? rDealForm(null) : '') +
+function rDealsTab(c,deals,contacts){
+  const rows=deals.length===0&&!showDealForm
+    ?'<div style="padding:32px;text-align:center;color:var(--c-text3);background:var(--c-bg2);border-radius:var(--radius)">案件がありません</div>'
+    :deals.map(d=>{
+      if(editDealId===d.id)return rDealForm(d,contacts);
+      const ct=(contacts||[]).find(x=>x.id===d.contactId);
+      return '<div class="deal-card">'+
+      '<div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:10px;border-bottom:1px solid var(--c-border);margin-bottom:12px">'+
+      '<div style="display:flex;align-items:center;gap:8px"><span class="badge ds-'+esc(d.status||'商談中')+'">'+esc(d.status||'商談中')+'</span>'+
+      (d.planName?'<span style="font-size:13px;font-weight:600">'+esc(d.planName)+'</span>':'')+'</div>'+
+      '<div style="display:flex;gap:6px">'+
+      '<button class="sm edit-deal-btn" data-did="'+d.id+'">編集</button>'+
+      '<button class="sm danger del-deal-btn" data-did="'+d.id+'">削除</button>'+
+      '</div></div>'+
+      '<div class="info-grid">'+
+      '<div class="info-row"><span class="info-label">商談開始日</span><span>'+(d.negotiationDate?new Date(d.negotiationDate).toLocaleDateString('ja-JP'):'-')+'</span></div>'+
+      '<div class="info-row"><span class="info-label">契約開始日</span><span>'+(d.contractStartDate?new Date(d.contractStartDate).toLocaleDateString('ja-JP'):'-')+'</span></div>'+
+      '<div class="info-row"><span class="info-label">担当者</span><span>'+(ct?esc(ct.name):'-')+'</span></div>'+
+      '<div class="info-row"><span class="info-label">初期費用(税込)</span><span>'+(d.initialFee?parseInt(d.initialFee).toLocaleString()+'円':'-')+'</span></div>'+
+      '<div class="info-row"><span class="info-label">月額利用料(税込)</span><span>'+(d.monthlyFee?parseInt(d.monthlyFee).toLocaleString()+'円':'-')+'</span></div>'+
+      '<div class="info-row"><span class="info-label">利用期間</span><span>'+(d.periodMonths?d.periodMonths+'か月':'-')+'</span></div>'+
+      '<div class="info-row"><span class="info-label">合計金額(税込)</span><span>'+(d.totalAmount?parseInt(d.totalAmount).toLocaleString()+'円':'-')+'</span></div>'+
+      (d.billingClosingDay?'<div class="info-row"><span class="info-label">請求締日</span><span>'+esc(d.billingClosingDay)+'</span></div>':'')+
+      (d.paymentDay?'<div class="info-row"><span class="info-label">お支払日</span><span>'+esc(d.paymentDay)+'</span></div>':'')+
+      (d.docUrl?'<div class="info-row"><span class="info-label">書類</span><span><a href="'+esc(d.docUrl)+'" target="_blank">書類を開く →</a></span></div>':'')+
+      (d.note?'<div class="info-row" style="grid-column:1/-1"><span class="info-label">備考</span><span style="white-space:pre-wrap">'+esc(d.note)+'</span></div>':'')+
+      '</div></div>';
+    }).join('');
+  return '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">'+
+    '<div style="font-size:14px;font-weight:600">案件一覧</div>'+
+    '<button class="primary sm" id="add-deal-btn">+ 案件を追加</button>'+
+    '</div>'+
+    (showDealForm&&!editDealId?rDealForm(null,contacts):'')+
     rows;
 }
 
-function rDealForm(d) {
-  const v = d || {};
-  const fmt = s => s ? s.slice(0,10) : '';
-  const statusOpts = DEAL_STATUSES.map(s =>
-    '<option value="' + s + '"' + ((v.status||'商談中') === s ? ' selected' : '') + '>' + s + '</option>'
-  ).join('');
-  return '<div class="card" style="margin-bottom:12px">' +
-    '<div style="font-size:14px;font-weight:600;margin-bottom:12px">' + (d ? '案件を編集' : '案件を追加') + '</div>' +
-    '<div class="fg2">' +
-    '<div><label>ステータス</label><select id="dl-status">' + statusOpts + '</select></div>' +
-    '<div><label>商談開始日</label><input type="date" id="dl-neg-date" value="' + esc(fmt(v.negotiationDate||'')) + '"></div>' +
-    '<div><label>契約日</label><input type="date" id="dl-contract-date" value="' + esc(fmt(v.contractDate||'')) + '"></div>' +
-    '<div><label>契約金額（円）</label><input type="number" id="dl-amount" value="' + esc(v.amount||'') + '"></div>' +
-    '<div style="grid-column:1/-1"><label>書類URL（Google DriveなどのリンクをURL形式で）</label><input id="dl-doc-url" value="' + esc(v.docUrl||'') + '"></div>' +
-    '</div>' +
-    '<div style="margin-top:10px"><label>備考</label><textarea id="dl-note" rows="2">' + esc(v.note||'') + '</textarea></div>' +
+function rDealForm(d,contacts){
+  const v=d||{};
+  const fmt=s=>s?s.slice(0,10):'';
+  const statusOpts=DEAL_STATUSES.map(s=>'<option value="'+s+'"'+((v.status||'商談中')===s?' selected':'')+'>'+s+'</option>').join('');
+  const contactOpts='<option value="">— 選択してください —</option>'+(contacts||[]).map(ct=>'<option value="'+ct.id+'"'+(v.contactId===ct.id?' selected':'')+'>'+esc(ct.name)+(ct.department?' ('+esc(ct.department)+')':'')+'</option>').join('');
+  const sec=t=>'<div style="font-size:12px;font-weight:600;color:var(--c-text2);margin:14px 0 8px;padding-bottom:6px;border-bottom:1px solid var(--c-border)">'+t+'</div>';
+  return '<div class="card" style="margin-bottom:12px">'+
+    '<div style="font-size:14px;font-weight:600;margin-bottom:14px">'+(d?'案件を編集':'案件を追加')+'</div>'+
+    sec('基本情報')+
+    '<div class="fg2">'+
+    '<div><label>ステータス</label><select id="dl-status">'+statusOpts+'</select></div>'+
+    '<div><label>商談開始日</label><input type="date" id="dl-neg-date" value="'+esc(fmt(v.negotiationDate||''))+'" ></div>'+
+    '<div><label>契約開始日</label><input type="date" id="dl-contract-start" value="'+esc(fmt(v.contractStartDate||''))+'" ></div>'+
+    '<div><label>担当者（申込書に記載）</label><select id="dl-contact">'+contactOpts+'</select></div>'+
+    '</div>'+
+    sec('契約内容')+
+    '<div class="fg2">'+
+    '<div><label>プラン名</label><input id="dl-plan" value="'+esc(v.planName||'')+'" ></div>'+
+    '<div><label>オプション</label><input id="dl-option" value="'+esc(v.optionName||'')+'" ></div>'+
+    '<div><label>初期費用（税込・円）</label><input type="number" id="dl-initial" value="'+esc(v.initialFee||'')+'" oninput="calcTotal()"></div>'+
+    '<div><label>月額利用料（税込・円）</label><input type="number" id="dl-monthly" value="'+esc(v.monthlyFee||'')+'" oninput="calcTotal()"></div>'+
+    '<div><label>利用期間（か月）</label><input type="number" id="dl-period" value="'+esc(v.periodMonths||'')+'" oninput="calcTotal()"></div>'+
+    '<div><label>支払い金額合計（税込・円）</label><input type="number" id="dl-total" value="'+esc(v.totalAmount||'')+'" placeholder="自動計算"></div>'+
+    '</div>'+
+    sec('支払い情報')+
+    '<div class="fg2">'+
+    '<div><label>請求締日</label><input id="dl-closing" placeholder="例: 毎月末日" value="'+esc(v.billingClosingDay||'')+'" ></div>'+
+    '<div><label>お支払日</label><input id="dl-payday" placeholder="例: 翠月末日" value="'+esc(v.paymentDay||'')+'" ></div>'+
+    '</div>'+
+    sec('その他')+
+    '<div style="margin-bottom:10px"><label>書類URL</label><input id="dl-doc-url" value="'+esc(v.docUrl||'')+'" ></div>'+
+    '<div style="margin-bottom:12px"><label>備考</label><textarea id="dl-note" rows="2">'+esc(v.note||'')+'</textarea></div>'+
     '<div class="fa"><button id="deal-cancel">キャンセル</button><button class="primary" id="deal-save">保存</button></div></div>';
 }
 
@@ -1146,8 +1178,16 @@ function bDetail() {
       customerId:c.id,
       status:document.getElementById('dl-status').value,
       negotiationDate:document.getElementById('dl-neg-date').value,
-      contractDate:document.getElementById('dl-contract-date').value,
-      amount:document.getElementById('dl-amount').value,
+      contractStartDate:document.getElementById('dl-contract-start').value,
+      contactId:document.getElementById('dl-contact').value,
+      planName:document.getElementById('dl-plan').value.trim(),
+      optionName:document.getElementById('dl-option').value.trim(),
+      initialFee:document.getElementById('dl-initial').value,
+      monthlyFee:document.getElementById('dl-monthly').value,
+      periodMonths:document.getElementById('dl-period').value,
+      totalAmount:document.getElementById('dl-total').value,
+      billingClosingDay:document.getElementById('dl-closing').value.trim(),
+      paymentDay:document.getElementById('dl-payday').value.trim(),
       docUrl:document.getElementById('dl-doc-url').value.trim(),
       note:document.getElementById('dl-note').value.trim(),
     };
