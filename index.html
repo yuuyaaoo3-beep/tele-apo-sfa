@@ -304,7 +304,7 @@ async function loadData() {
   st.contacts=cts.docs.map(d=>({id:d.id,...d.data()}));
   st.calls=hs.docs.map(d=>({id:d.id,...d.data()}));
   try{const ds=await getDocs(col('deals'));st.deals=ds.docs.map(d=>({id:d.id,...d.data()}));}catch(e){st.deals=[];}
-  try{const hs2=await getDocs(col('legalChecks'));st.legalChecks=hs2.docs.map(d=>({id:d.id,...d.data()}));}catch(e){st.legalChecks=[];}
+  try{const hs2=await getDocs(col('hanshaChecks'));st.legalChecks=hs2.docs.map(d=>({id:d.id,...d.data()}));}catch(e){st.legalChecks=[];}
 }
 async function reload() { await loadData(); }
 
@@ -1058,14 +1058,14 @@ function exportShinseisho(dealId) {
 // リーガルチェック Tab
 // ============================================================
 const LEGAL_ITEMS = [
-  '会社名・代表者名でのインターネット検索を実施した',
-  '国税庁の法人番号公表サイトで法人情報を確認した',
-  '暴力団・暴力団関係企業との関係がないことを確認した',
-  '反社会的勢力リスト（社内データベース等）と照合した',
-  'ニュース・報道での問題情報（詐欺・不正等）がないことを確認した',
-  '行政処分・訴訟・破産情報がないことを確認した',
-  '取引先の実態（幽霊会社でないか）を確認した',
-  '上記すべての確認を経て、取引に問題がないと総合的に判断した',
+  { label: '会社名・代表者名でのインターネット検索を実施した', url: 'https://www.google.co.jp/', urlLabel: 'Google検索' },
+  { label: '国税庁の法人番号公表サイトで法人情報を確認した', url: 'https://www.houjin-bangou.nta.go.jp/', urlLabel: '国税庁法人番号公表サイト' },
+  { label: '暴力団・暴力団関係企業との関係がないことを確認した', url: 'https://www.npa.go.jp/sosikihanzai/bouryokudan/bouryoku09.htm', urlLabel: '警察庁・排除情報' },
+  { label: '反社会的勢力リスト（社内データベース等）と照合した', url: null, urlLabel: null },
+  { label: 'ニュース・報道での問題情報（詐欺・不正等）がないことを確認した', url: 'https://news.google.com/', urlLabel: 'Googleニュース' },
+  { label: '行政処分・訴訟・破産情報がないことを確認した', url: 'https://kanpou.npb.go.jp/', urlLabel: '官報情報検索' },
+  { label: '取引先の実態（幽霊会社でないか）を確認した', url: 'https://www.touki-kyoutaku-online.moj.go.jp/', urlLabel: '登記情報提供サービス' },
+  { label: '上記すべての確認を経て、取引に問題がないと総合的に判断した', url: null, urlLabel: null },
 ];
 const LEGAL_STATUSES = ['未実施','確認中','承認済み','要確認'];
 const LEGAL_STATUS_COLOR = { '未実施':'var(--c-text3)', '確認中':'var(--c-blue)', '承認済み':'var(--c-green)', '要確認':'var(--c-red)' };
@@ -1079,8 +1079,6 @@ function rLegalTab(c) {
     '<option value="' + s + '"' + (status === s ? ' selected' : '') + '>' + s + '</option>'
   ).join('');
   const checkedCount = LEGAL_ITEMS.filter((_,i) => checks['c'+(i+1)]).length;
-  const ntaUrl = 'https://www.houjin-bangou.nta.go.jp/henkorireki-johoto.html?selHouzinNo=';
-  const ntaSearchUrl = 'https://www.houjin-bangou.nta.go.jp/';
 
   return '<div class="card">'
     + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--c-border)">'
@@ -1088,22 +1086,15 @@ function rLegalTab(c) {
     + '<span style="font-size:13px;font-weight:600;color:' + statusColor + '">● ' + esc(status) + '</span>'
     + '</div>'
 
-    + '<div style="background:var(--c-bg2);border-radius:var(--radius-lg);padding:14px;margin-bottom:16px">'
-    + '<div style="font-size:12px;font-weight:600;color:var(--c-text2);margin-bottom:10px">法人番号確認</div>'
-    + '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">'
-    + '<input id="lc-corp-num" placeholder="法人番号（13桁）" value="' + esc(hc.corporateNumber||'') + '" style="flex:1;min-width:180px">'
-    + '<button class="sm" onclick="window.open(\'' + ntaSearchUrl + '\',\'_blank\')">国税庁で検索 →</button>'
-    + (hc.corporateNumber ? '<button class="sm" onclick="window.open(\'' + ntaUrl + esc(hc.corporateNumber||'') + '\',\'_blank\')">登記情報を確認 →</button>' : '')
-    + '</div></div>'
-
     + '<div style="font-size:12px;font-weight:600;color:var(--c-text2);margin-bottom:10px">チェックリスト（' + checkedCount + '/' + LEGAL_ITEMS.length + '）</div>'
     + LEGAL_ITEMS.map((item, i) => {
       const key = 'c' + (i+1);
       const checked = checks[key] ? 'checked' : '';
       const done = checks[key];
+      const linkHtml = item.url ? ' <a href="' + item.url + '" target="_blank" style="font-size:11px;color:var(--c-blue);white-space:nowrap;text-decoration:none" onclick="event.stopPropagation()">▶ ' + item.urlLabel + '</a>' : '';
       return '<div style="display:flex;align-items:flex-start;gap:12px;padding:11px 0;border-bottom:1px solid var(--c-border)">'
-        + '<input type="checkbox" id="lc-' + key + '" ' + checked + ' style="margin-top:2px;flex-shrink:0;width:16px;height:16px;cursor:pointer">'
-        + '<label for="lc-' + key + '" style="font-size:13px;cursor:pointer;flex:1;min-width:0;line-height:1.6;' + (done ? 'color:var(--c-text3);text-decoration:line-through' : 'color:var(--c-text)') + '">' + esc(item) + '</label>'
+        + '<input type="checkbox" id="lc-' + key + '" ' + checked + ' style="margin-top:3px;flex-shrink:0;width:16px;height:16px;cursor:pointer">'
+        + '<label for="lc-' + key + '" style="font-size:13px;cursor:pointer;flex:1;min-width:0;line-height:1.7;' + (done ? 'color:var(--c-text3);text-decoration:line-through' : 'color:var(--c-text)') + '">' + esc(item.label) + linkHtml + '</label>'
         + (done ? '<span style="flex-shrink:0;font-size:11px;color:var(--c-green);font-weight:600">✓</span>' : '')
         + '</div>';
     }).join('')
@@ -1270,7 +1261,6 @@ function bDetail() {
     });
     const data={
       customerId:c.id,
-      corporateNumber:document.getElementById('lc-corp-num').value.trim(),
       checks,
       memo:document.getElementById('lc-memo').value.trim(),
       status:document.getElementById('lc-status').value,
@@ -1280,10 +1270,10 @@ function bDetail() {
     try{
       const existing=st.legalChecks.find(x=>x.customerId===c.id);
       if(existing){
-        await updateDoc(ref('legalChecks',existing.id),data);
+        await updateDoc(ref('hanshaChecks',existing.id),data);
         Object.assign(existing,data);
       } else {
-        const r=await addDoc(col('legalChecks'),data);
+        const r=await addDoc(col('hanshaChecks'),data);
         st.legalChecks.push({id:r.id,...data});
       }
       toast('リーガルチェックを保存しました');render();
@@ -1720,3 +1710,4 @@ function bSettings() {
 </script>
 </body>
 </html>
+
