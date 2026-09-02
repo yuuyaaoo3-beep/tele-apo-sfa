@@ -151,6 +151,16 @@
   .ds-\u5931\u6ce8{background:#f0f0f0;color:#666}
   .deal-card{background:var(--c-bg);border:1px solid var(--c-border);border-radius:var(--radius-lg);padding:16px;margin-bottom:12px;box-shadow:0 1px 4px rgba(0,0,0,.04);}
   .deal-card:hover{border-color:#b0c8f0;}
+  .meeting-list{margin-top:16px;padding-top:14px;border-top:1px solid var(--c-border);}
+  .meeting-item{position:relative;margin-left:8px;padding:0 0 16px 22px;border-left:2px solid #dbe7fb;}
+  .meeting-item:last-child{padding-bottom:0;}
+  .meeting-item::before{content:'';position:absolute;left:-6px;top:4px;width:10px;height:10px;border-radius:50%;background:var(--c-blue);box-shadow:0 0 0 3px #eaf1ff;}
+  .meeting-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;margin-bottom:6px;}
+  .meeting-meta{font-size:12px;color:var(--c-text2);display:flex;gap:10px;flex-wrap:wrap;}
+  .meeting-minutes{margin-top:8px;padding:10px 12px;background:var(--c-bg2);border-radius:9px;font-size:13px;white-space:pre-wrap;line-height:1.65;}
+  .forecast-badge{display:inline-flex;align-items:center;border-radius:999px;padding:2px 8px;font-size:11px;font-weight:650;background:#fff4d6;color:#8a5700;}
+  .check-row{display:flex;align-items:center;gap:9px;min-height:40px;padding:8px 10px;border:1px solid var(--c-border);border-radius:9px;background:var(--c-bg2);}
+  .check-row input{min-height:auto;width:16px;height:16px;margin:0;}
   /* ===== 2026 UI/UX refresh ===== */
   :root {
     --c-bg: #ffffff; --c-bg2: #f4f7fb; --c-bg3: #e9eef5;
@@ -302,9 +312,13 @@ let bulkMode = false;
 let bulkSelected = new Set();
 let showDealForm = false;
 let editDealId = null;
+let showMeetingDealId = null;
+let editMeetingId = null;
 let editCallId = null;
 
 const ts = () => new Date().toISOString();
+const localDate = (d=new Date()) => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+const makeId = () => globalThis.crypto?.randomUUID?.() || `m-${Date.now()}-${Math.random().toString(36).slice(2,8)}`;
 function debounce(fn, ms) { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; }
 function calcTotal(){
   const ini=parseInt(document.getElementById('dl-initial')?.value)||0;
@@ -313,6 +327,14 @@ function calcTotal(){
   const tot=document.getElementById('dl-total');
   if(tot&&(ini||mon||per))tot.value=ini+mon*per;
 }
+function calcMeetingTotal(){
+  const monthly=parseInt(document.getElementById('mt-monthly')?.value)||0;
+  const period=parseInt(document.getElementById('mt-period')?.value)||0;
+  const total=document.getElementById('mt-total');
+  if(total&&(monthly||period))total.value=monthly*period;
+}
+window.calcTotal=calcTotal;
+window.calcMeetingTotal=calcMeetingTotal;
 const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 const isUrl = s => /^https?:\/\/.+/.test((s||'').trim());
 const rankBadge = r => r ? `<span class="badge r-${r}">${r}ランク</span>` : `<span class="badge r-未設定">未設定</span>`;
@@ -1151,7 +1173,7 @@ function rContactsTab(c,contacts) {
     <div class="contact-card">
       <div class="contact-header">
         <div><div class="contact-name">${esc(ct.name||'-')}</div>
-        <div class="contact-sub">${[ct.department,ct.position].filter(Boolean).map(esc).join(' / ')||''}</div></div>
+        <div class="contact-sub">${[ct.department,ct.position].filter(Boolean).map(esc).join(' / ')||''}${ct.isBillingContact?' <span class="badge" style="background:#ede9fe;color:#6d28d9">請求先</span>':''}</div></div>
         <div style="display:flex;gap:6px">
           <button class="sm edit-contact-btn" data-ctid="${ct.id}">編集</button>
           <button class="sm danger del-contact-btn" data-ctid="${ct.id}">削除</button>
@@ -1177,6 +1199,8 @@ function rContactForm(c,ct) {
     <div><label>メールアドレス</label><input id="ct-em" type="email" value="${esc(v.email||'')}"></div>
     <div><label>所属事業部</label><input id="ct-dep" value="${esc(v.department||'')}"></div>
     <div><label>役職</label><input id="ct-pos" value="${esc(v.position||'')}"></div>
+    <label class="check-row"><input id="ct-billing" type="checkbox"${v.isBillingContact?' checked':''}>請求先担当者として使用する</label>
+    <div style="font-size:11px;color:var(--c-text3);margin-top:-6px">選択すると、同じ会社の他の請求先フラグは解除されます。</div>
   </div>
   <div style="margin-top:10px"><label>備考</label><textarea id="ct-note" rows="2">${esc(v.note||'')}</textarea></div>
   <div class="fa"><button id="ct-cancel">キャンセル</button><button class="primary" id="ct-save" data-ctid="${ct?ct.id:''}">保存</button></div></div>`;
@@ -1192,6 +1216,8 @@ function exportShinseisho(dealId) {
   if (!d) { alert('案件情報が見つかりません'); return; }
   const c = st.customers.find(x => x.id === d.customerId) || {};
   const ct = st.contacts.find(x => x.id === d.contactId) || {};
+  const billingCt = st.contacts.find(x => x.customerId === d.customerId && x.isBillingContact) || ct;
+  const billingSame = billingCt.id && billingCt.id === ct.id;
 
   function e(v) { return String(v||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
   function fmtMoney(v) { return v ? '¥ ' + parseInt(v).toLocaleString() : ''; }
@@ -1223,17 +1249,17 @@ function exportShinseisho(dealId) {
 
   const billingRows =
     '<tr><td colspan="5" style="background:#f9f9f9;padding:5px 8px;font-size:10px;color:#555">'
-      + chk + '　契約者情報と同じ　　異なる場合は以下に記入</td></tr>'
-    + '<tr><td class="lbl">請求先会社名</td><td colspan="4"></td></tr>'
-    + '<tr><td class="lbl" rowspan="3">所在地</td><td colspan="4" style="font-size:10px">〒</td></tr>'
-    + '<tr><td colspan="4" style="font-size:9px;color:#888">（ふりがな）</td></tr>'
-    + '<tr><td colspan="4"></td></tr>'
+      + (billingSame?'&#9745;':'&#9633;') + '　契約者情報と同じ　　異なる場合は以下に記入</td></tr>'
+    + '<tr><td class="lbl">請求先会社名</td><td colspan="4">' + e(c.companyName) + '</td></tr>'
+    + '<tr><td class="lbl" rowspan="3">所在地</td><td colspan="4" style="font-size:10px">' + zip + '</td></tr>'
+    + '<tr><td colspan="4" style="font-size:9px;color:#888">（ふりがな）　' + e(c.addressKana) + '</td></tr>'
+    + '<tr><td colspan="4">' + fullAddr + '</td></tr>'
     + '<tr><td class="lbl" rowspan="2">担当者名</td>'
       + '<td style="font-size:9px;color:#888">（ふりがな）</td>'
       + '<td class="lbl" rowspan="2">部署・役職</td>'
-      + '<td style="font-size:9px;color:#888">（部署）</td></tr>'
-    + '<tr><td></td><td>（役職）</td></tr>'
-    + '<tr><td class="lbl">電話番号</td><td></td><td class="lbl">メールアドレス</td><td colspan="2"></td></tr>';
+      + '<td style="font-size:9px;color:#888">（部署）　' + e(billingCt.department) + '</td></tr>'
+    + '<tr><td>' + e(billingCt.name) + '</td><td>（役職）　' + e(billingCt.position) + '</td></tr>'
+    + '<tr><td class="lbl">電話番号</td><td>' + e(billingCt.phone) + '</td><td class="lbl">メールアドレス</td><td colspan="2">' + e(billingCt.email) + '</td></tr>';
 
   const contractRows =
     '<tr><td class="lbl">契約開始日</td><td colspan="4">' + fmtDate(d.contractStartDate) + '</td></tr>'
@@ -1339,6 +1365,76 @@ function rLegalTab(c) {
 // Deals Tab
 // ============================================================
 const DEAL_STATUSES = ['商談中','契約済','失注'];
+const MEETING_STATUSES = ['初回商談','要件確認','提案','見積提示','条件調整','稟議中','受注','失注','保留'];
+const MEETING_FORECASTS = [
+  {value:'A',label:'A（80%以上）'},
+  {value:'B',label:'B（50〜79%）'},
+  {value:'C',label:'C（20〜49%）'},
+  {value:'D',label:'D（20%未満）'}
+];
+
+function rMeetingForm(d,contacts){
+  const meeting=(d.meetings||[]).find(x=>x.id===editMeetingId)||{};
+  const latest=[...(d.meetings||[])].sort((a,b)=>new Date(b.meetingDate||b.createdAt)-new Date(a.meetingDate||a.createdAt))[0]||{};
+  const v=Object.keys(meeting).length?meeting:{
+    meetingDate:localDate(), ownerId:st.user?.id||'', customerContactId:d.contactId||'',
+    contractContent:latest.contractContent||d.planName||'', optionName:latest.optionName||d.optionName||'',
+    monthlyFee:latest.monthlyFee||d.monthlyFee||'', periodMonths:latest.periodMonths||d.periodMonths||'',
+    totalAmount:latest.totalAmount||d.totalAmount||''
+  };
+  const stageOpts=MEETING_STATUSES.map(s=>`<option value="${s}"${(v.status||'初回商談')===s?' selected':''}>${s}</option>`).join('');
+  const ownerOpts='<option value="">— 選択してください —</option>'+st.users.map(u=>`<option value="${u.id}"${v.ownerId===u.id?' selected':''}>${esc(u.name||u.email||'未設定')}</option>`).join('');
+  const contactOpts='<option value="">— 未選択 —</option>'+(contacts||[]).map(ct=>`<option value="${ct.id}"${v.customerContactId===ct.id?' selected':''}>${esc(ct.name)}${ct.department?'（'+esc(ct.department)+'）':''}</option>`).join('');
+  const forecastOpts='<option value="">— 未設定 —</option>'+MEETING_FORECASTS.map(x=>`<option value="${x.value}"${v.forecast===x.value?' selected':''}>${x.label}</option>`).join('');
+  const sec=t=>`<div style="font-size:12px;font-weight:600;color:var(--c-text2);margin:14px 0 8px;padding-bottom:6px;border-bottom:1px solid var(--c-border)">${t}</div>`;
+  return `<div class="card" style="margin-top:14px;background:#fbfdff">
+    <div style="font-size:14px;font-weight:650;margin-bottom:12px">${meeting.id?'商談記録を編集':'商談記録を追加'}</div>
+    ${sec('商談情報')}
+    <div class="fg2">
+      <div><label>ステータス *</label><select id="mt-status">${stageOpts}</select></div>
+      <div><label>商談日 *</label><input type="date" id="mt-date" value="${esc((v.meetingDate||localDate()).slice(0,10))}"></div>
+      <div><label>FS担当者 *</label><select id="mt-owner">${ownerOpts}</select></div>
+      <div><label>先方参加者</label><select id="mt-contact">${contactOpts}</select></div>
+      <div><label>見込み</label><select id="mt-forecast">${forecastOpts}</select></div>
+    </div>
+    ${sec('見込み契約内容')}
+    <div class="fg2">
+      <div><label>契約内容</label><input id="mt-contract" placeholder="例: スタンダードプラン" value="${esc(v.contractContent||'')}"></div>
+      <div><label>オプション</label><input id="mt-option" value="${esc(v.optionName||'')}"></div>
+      <div><label>月額利用料（税込・円）</label><input type="number" min="0" id="mt-monthly" value="${esc(v.monthlyFee||'')}" oninput="calcMeetingTotal()"></div>
+      <div><label>利用期間（か月）</label><input type="number" min="0" id="mt-period" value="${esc(v.periodMonths||'')}" oninput="calcMeetingTotal()"></div>
+      <div><label>支払い合計金額（税込・円）</label><input type="number" min="0" id="mt-total" value="${esc(v.totalAmount||'')}" placeholder="自動計算"></div>
+    </div>
+    ${sec('議事録・次回アクション')}
+    <div><label>議事録</label><textarea id="mt-minutes" rows="5" placeholder="課題、合意事項、懸念点、決裁条件などを記録">${esc(v.minutes||'')}</textarea></div>
+    <div class="fg2" style="margin-top:10px">
+      <div><label>次回アクション日</label><input type="datetime-local" id="mt-next-date" value="${esc(v.nextActionAt||'')}"></div>
+      <div><label>次回アクション内容</label><input id="mt-next-content" placeholder="例: 見積書を送付" value="${esc(v.nextActionContent||'')}"></div>
+    </div>
+    <div class="fa"><button class="meeting-cancel">キャンセル</button><button class="primary meeting-save" data-did="${d.id}" data-mid="${meeting.id||''}">保存</button></div>
+  </div>`;
+}
+
+function rMeetingHistory(d,contacts){
+  const meetings=[...(d.meetings||[])].sort((a,b)=>new Date(b.meetingDate||b.createdAt)-new Date(a.meetingDate||a.createdAt));
+  const body=meetings.length?meetings.map(m=>{
+    if(showMeetingDealId===d.id&&editMeetingId===m.id)return rMeetingForm(d,contacts);
+    const owner=st.users.find(u=>u.id===m.ownerId);
+    const customerContact=(contacts||[]).find(ct=>ct.id===m.customerContactId);
+    const forecast=MEETING_FORECASTS.find(x=>x.value===m.forecast);
+    const money=[m.monthlyFee?`月額 ${Number(m.monthlyFee).toLocaleString()}円`:'',m.periodMonths?`${esc(m.periodMonths)}か月`:'',m.totalAmount?`合計 ${Number(m.totalAmount).toLocaleString()}円`:''].filter(Boolean).join(' / ');
+    return `<div class="meeting-item">
+      <div class="meeting-head"><div><div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap"><strong>${esc(m.status||'商談')}</strong>${forecast?`<span class="forecast-badge">見込み ${forecast.value}</span>`:''}</div>
+      <div class="meeting-meta"><span>${m.meetingDate?new Date(m.meetingDate+'T00:00:00').toLocaleDateString('ja-JP'):'日付未設定'}</span><span>FS: ${esc(owner?.name||owner?.email||'-')}</span>${customerContact?`<span>先方: ${esc(customerContact.name)}</span>`:''}</div></div>
+      <div style="display:flex;gap:5px"><button class="sm edit-meeting-btn" data-did="${d.id}" data-mid="${m.id}">編集</button><button class="sm danger del-meeting-btn" data-did="${d.id}" data-mid="${m.id}">削除</button></div></div>
+      ${(m.contractContent||m.optionName||money)?`<div style="font-size:12px;color:var(--c-text2)">${[m.contractContent,m.optionName,money].filter(Boolean).map(esc).join(' / ')}</div>`:''}
+      ${m.minutes?`<div class="meeting-minutes">${esc(m.minutes)}</div>`:''}
+      ${(m.nextActionAt||m.nextActionContent)?`<div style="margin-top:7px;font-size:12px;color:var(--c-blue-text)">次回: ${m.nextActionAt?new Date(m.nextActionAt).toLocaleString('ja-JP'):''} ${esc(m.nextActionContent||'')}</div>`:''}
+    </div>`;
+  }).join(''):'<div class="empty-state" style="padding:18px"><strong>商談記録はまだありません</strong>「商談記録を追加」から初回商談を登録できます。</div>';
+  return `<div class="meeting-list"><div style="font-size:13px;font-weight:650;margin-bottom:12px">商談履歴（${meetings.length}件）</div>${body}</div>`;
+}
+
 
 function rDealsTab(c,deals,contacts){
   const rows=deals.length===0&&!showDealForm
@@ -1347,11 +1443,12 @@ function rDealsTab(c,deals,contacts){
       if(editDealId===d.id)return rDealForm(d,contacts);
       const ct=(contacts||[]).find(x=>x.id===d.contactId);
       return '<div class="deal-card">'+
-      '<div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:10px;border-bottom:1px solid var(--c-border);margin-bottom:12px">'+
+      '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;padding-bottom:10px;border-bottom:1px solid var(--c-border);margin-bottom:12px">'+
       '<div style="display:flex;align-items:center;gap:8px"><span class="badge ds-'+esc(d.status||'商談中')+'">'+esc(d.status||'商談中')+'</span>'+
       (d.planName?'<span style="font-size:13px;font-weight:600">'+esc(d.planName)+'</span>':'')+'</div>'+
-      '<div style="display:flex;gap:6px">'+
+      '<div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">'+
       (()=>{const lc=st.legalChecks.find(x=>x.customerId===c.id);const ok=lc&&lc.status==='承認済み';return ok?'<button class="sm export-deal-btn" data-did="'+d.id+'">📄 申込書を出力</button>':'<button class="sm" disabled title="リーガルチェックが完了していないため、出力ができません" style="opacity:0.4;cursor:not-allowed">📄 申込書を出力</button>';})() +
+      '<button class="sm primary add-meeting-btn" data-did="'+d.id+'">+ 商談記録</button>'+
       '<button class="sm edit-deal-btn" data-did="'+d.id+'">編集</button>'+
       '<button class="sm danger del-deal-btn" data-did="'+d.id+'">削除</button>'+
       '</div></div>'+
@@ -1367,7 +1464,7 @@ function rDealsTab(c,deals,contacts){
       (d.paymentDay?'<div class="info-row"><span class="info-label">お支払日</span><span>'+esc(d.paymentDay)+'</span></div>':'')+
       (d.docUrl?'<div class="info-row"><span class="info-label">書類</span><span><a href="'+esc(d.docUrl)+'" target="_blank">書類を開く →</a></span></div>':'')+
       (d.note?'<div class="info-row" style="grid-column:1/-1"><span class="info-label">備考</span><span style="white-space:pre-wrap">'+esc(d.note)+'</span></div>':'')+
-      '</div></div>';
+      '</div>'+rMeetingHistory(d,contacts)+(showMeetingDealId===d.id&&!editMeetingId?rMeetingForm(d,contacts):'')+'</div>';
     }).join('');
   return '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">'+
     '<div style="font-size:14px;font-weight:600">案件一覧</div>'+
@@ -1388,9 +1485,9 @@ function rDealForm(d,contacts){
     sec('基本情報')+
     '<div class="fg2">'+
     '<div><label>ステータス</label><select id="dl-status">'+statusOpts+'</select></div>'+
-    '<div><label>商談開始日</label><input type="date" id="dl-neg-date" value="'+esc(fmt(v.negotiationDate||''))+'" ></div>'+
+    '<div><label>商談開始日</label><input type="date" id="dl-neg-date" value="'+esc(fmt(v.negotiationDate||localDate()))+'" ></div>'+
     '<div><label>契約開始日</label><input type="date" id="dl-contract-start" value="'+esc(fmt(v.contractStartDate||''))+'" ></div>'+
-    '<div><label>担当者（申込書に記載）</label><select id="dl-contact">'+contactOpts+'</select></div>'+
+    '<div><label>顧客側担当者（申込書に記載）</label><select id="dl-contact">'+contactOpts+'</select></div>'+
     '</div>'+
     sec('契約内容')+
     '<div class="fg2">'+
@@ -1471,7 +1568,7 @@ function rCallEditForm(h) {
 function bDetail() {
   const c=st.customers.find(x=>x.id===st.selId);if(!c)return;
   document.getElementById('back').onclick=()=>{st.view='customers';editCid=null;showCallF=false;showAddContact=false;editContactId=null;render();};
-  document.querySelectorAll('.tab[data-tab]').forEach(b=>b.onclick=()=>{detailTab=b.dataset.tab;showCallF=false;showAddContact=false;editContactId=null;showDealForm=false;editDealId=null;editCallId=null;render();});
+  document.querySelectorAll('.tab[data-tab]').forEach(b=>b.onclick=()=>{detailTab=b.dataset.tab;showCallF=false;showAddContact=false;editContactId=null;showDealForm=false;editDealId=null;showMeetingDealId=null;editMeetingId=null;editCallId=null;render();});
   // リーガルチェック保存
   const elHcSave=document.getElementById('lc-save');
   if(elHcSave)elHcSave.onclick=async()=>{
@@ -1539,8 +1636,13 @@ function bDetail() {
   const elCtSave=document.getElementById('ct-save');
   if(elCtSave)elCtSave.onclick=async()=>{
     const name=document.getElementById('ct-nm').value.trim();if(!name){alert('担当者名は必須です');return;}
-    const data={customerId:c.id,name,phone:document.getElementById('ct-ph').value.trim(),email:document.getElementById('ct-em').value.trim(),department:document.getElementById('ct-dep').value.trim(),position:document.getElementById('ct-pos').value.trim(),note:document.getElementById('ct-note').value.trim()};
+    const data={customerId:c.id,name,phone:document.getElementById('ct-ph').value.trim(),email:document.getElementById('ct-em').value.trim(),department:document.getElementById('ct-dep').value.trim(),position:document.getElementById('ct-pos').value.trim(),isBillingContact:document.getElementById('ct-billing').checked,note:document.getElementById('ct-note').value.trim()};
     const ctid=elCtSave.dataset.ctid;
+    if(data.isBillingContact){
+      const others=st.contacts.filter(x=>x.customerId===c.id&&x.id!==ctid&&x.isBillingContact);
+      await Promise.all(others.map(x=>updateDoc(ref('contacts',x.id),{isBillingContact:false})));
+      others.forEach(x=>x.isBillingContact=false);
+    }
     if(ctid){await updateDoc(ref('contacts',ctid),data);const idx=st.contacts.findIndex(x=>x.id===ctid);if(idx>=0)st.contacts[idx]={...st.contacts[idx],...data};editContactId=null;toast('更新しました');}
     else{data.createdAt=ts();const r=await addDoc(col('contacts'),data);st.contacts.push({id:r.id,...data});showAddContact=false;toast('担当者を追加しました');}
     render();
@@ -1595,14 +1697,82 @@ function bDetail() {
   });
   bCustForm(editCid?c:null);
   const elAddDeal=document.getElementById('add-deal-btn');
-  if(elAddDeal)elAddDeal.onclick=()=>{showDealForm=true;editDealId=null;render();};
+  if(elAddDeal)elAddDeal.onclick=()=>{showDealForm=true;editDealId=null;showMeetingDealId=null;editMeetingId=null;render();};
   const elDealCancel=document.getElementById('deal-cancel');
   if(elDealCancel)elDealCancel.onclick=()=>{showDealForm=false;editDealId=null;render();};
+  const persistMeetings=async(deal,meetings)=>{
+    const ordered=[...meetings].sort((a,b)=>new Date(b.meetingDate||b.createdAt)-new Date(a.meetingDate||a.createdAt));
+    const latest=ordered[0];
+    const first=[...meetings].sort((a,b)=>new Date(a.meetingDate||a.createdAt)-new Date(b.meetingDate||b.createdAt))[0];
+    const patch={meetings,updatedAt:ts()};
+    if(latest){
+      patch.status=latest.status==='受注'?'契約済':latest.status==='失注'?'失注':'商談中';
+      patch.userId=latest.ownerId||deal.userId||st.user?.id||'';
+      patch.negotiationDate=first?.meetingDate||deal.negotiationDate||'';
+      patch.planName=latest.contractContent||deal.planName||'';
+      patch.optionName=latest.optionName||'';
+      patch.monthlyFee=latest.monthlyFee||'';
+      patch.periodMonths=latest.periodMonths||'';
+      patch.totalAmount=latest.totalAmount||'';
+    }
+    await updateDoc(ref('deals',deal.id),patch);
+    Object.assign(deal,patch);
+    const customerStatusMap={初回商談:'初回商談',要件確認:'初回商談',提案:'提案中',見積提示:'提案中',条件調整:'検討中',稟議中:'検討中',受注:'受注',失注:'失注',保留:'ナーチャリング'};
+    const nextCustomerStatus=latest&&customerStatusMap[latest.status];
+    if(nextCustomerStatus&&c.status!==nextCustomerStatus){
+      await updateDoc(ref('customers',c.id),{status:nextCustomerStatus});
+      c.status=nextCustomerStatus;
+    }
+  };
+  document.querySelectorAll('.add-meeting-btn').forEach(b=>b.onclick=()=>{showMeetingDealId=b.dataset.did;editMeetingId=null;showDealForm=false;editDealId=null;render();});
+  document.querySelectorAll('.meeting-cancel').forEach(b=>b.onclick=()=>{showMeetingDealId=null;editMeetingId=null;render();});
+  document.querySelectorAll('.edit-meeting-btn').forEach(b=>b.onclick=()=>{showMeetingDealId=b.dataset.did;editMeetingId=b.dataset.mid;render();});
+  document.querySelectorAll('.meeting-save').forEach(b=>b.onclick=async()=>{
+    if(b.disabled)return;
+    const deal=st.deals.find(x=>x.id===b.dataset.did);
+    if(!deal)return;
+    const status=document.getElementById('mt-status').value;
+    const meetingDate=document.getElementById('mt-date').value;
+    const ownerId=document.getElementById('mt-owner').value;
+    if(!status||!meetingDate||!ownerId){alert('ステータス・商談日・FS担当者は必須です');return;}
+    b.disabled=true;
+    const old=(deal.meetings||[]).find(x=>x.id===b.dataset.mid);
+    const meeting={
+      id:old?.id||makeId(),status,meetingDate,ownerId,
+      customerContactId:document.getElementById('mt-contact').value,
+      forecast:document.getElementById('mt-forecast').value,
+      contractContent:document.getElementById('mt-contract').value.trim(),
+      optionName:document.getElementById('mt-option').value.trim(),
+      monthlyFee:document.getElementById('mt-monthly').value,
+      periodMonths:document.getElementById('mt-period').value,
+      totalAmount:document.getElementById('mt-total').value,
+      minutes:document.getElementById('mt-minutes').value.trim(),
+      nextActionAt:document.getElementById('mt-next-date').value,
+      nextActionContent:document.getElementById('mt-next-content').value.trim(),
+      createdAt:old?.createdAt||ts(),createdBy:old?.createdBy||st.user?.id||'',updatedAt:ts()
+    };
+    const meetings=old?(deal.meetings||[]).map(x=>x.id===old.id?meeting:x):[...(deal.meetings||[]),meeting];
+    try{
+      await persistMeetings(deal,meetings);
+      showMeetingDealId=null;editMeetingId=null;toast(old?'商談記録を更新しました':'商談記録を追加しました');render();
+    }catch(e){alert('商談記録の保存に失敗しました: '+e.message);b.disabled=false;}
+  });
+  document.querySelectorAll('.del-meeting-btn').forEach(b=>b.onclick=async()=>{
+    if(!confirm('この商談記録を削除しますか？'))return;
+    const deal=st.deals.find(x=>x.id===b.dataset.did);
+    if(!deal)return;
+    try{
+      await persistMeetings(deal,(deal.meetings||[]).filter(x=>x.id!==b.dataset.mid));
+      toast('商談記録を削除しました');render();
+    }catch(e){alert('削除に失敗しました: '+e.message);}
+  });
   const elDealSave=document.getElementById('deal-save');
   if(elDealSave)elDealSave.onclick=async()=>{
     if(elDealSave.disabled)return; elDealSave.disabled=true;
     const data={
       customerId:c.id,
+      userId:(editDealId?st.deals.find(x=>x.id===editDealId)?.userId:'')||st.user?.id||'',
+      updatedAt:ts(),
       status:document.getElementById('dl-status').value,
       negotiationDate:document.getElementById('dl-neg-date').value,
       contractStartDate:document.getElementById('dl-contract-start').value,
@@ -1626,6 +1796,7 @@ function bDetail() {
         editDealId=null;toast('案件を更新しました');
       } else {
         data.createdAt=ts();
+        data.meetings=[];
         const r=await addDoc(col('deals'),data);
         st.deals.push({id:r.id,...data});
         toast('案件を追加しました');
@@ -1635,7 +1806,7 @@ function bDetail() {
     finally{elDealSave.disabled=false;}
   };
   document.querySelectorAll('.export-deal-btn').forEach(b=>b.onclick=()=>{exportShinseisho(b.dataset.did);});
-  document.querySelectorAll('.edit-deal-btn').forEach(b=>b.onclick=()=>{editDealId=b.dataset.did;showDealForm=true;render();});
+  document.querySelectorAll('.edit-deal-btn').forEach(b=>b.onclick=()=>{editDealId=b.dataset.did;showDealForm=true;showMeetingDealId=null;editMeetingId=null;render();});
   document.querySelectorAll('.del-deal-btn').forEach(b=>b.onclick=async()=>{
     if(!confirm('この案件を削除しますか？'))return;
     await deleteDoc(ref('deals',b.dataset.did));
