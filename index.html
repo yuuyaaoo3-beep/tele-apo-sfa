@@ -289,7 +289,7 @@ const auth = getAuth(fbApp);
 const col = n => collection(db, n);
 const ref = (n, id) => doc(db, n, id);
 
-const CALL_RESULTS = ['不通','受付NG','担当者不在','有効応答','担当者NG','資料送付','アポ獲得','ミスディレクション'];
+const CALL_RESULTS = ['未通電','不通','受付NG','担当者不在','担当者NG','資料送付','アポ獲得','対象外'];
 const STATUSES = ['未架電','架電済','架電NG','ナーチャリング','アポ獲得','初回商談','提案中','検討中','受注','失注'];
 const RANKS = ['A','B','C','D'];
 
