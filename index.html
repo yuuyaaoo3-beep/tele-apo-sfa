@@ -1701,7 +1701,12 @@ function bDetail() {
     const newVal=!c.doNotCall;
     const msg=newVal?'この顧客を架電禁止に設定しますか？\n一覧で赤く強調表示されます。':'架電禁止を解除しますか？';
     if(!confirm(msg))return;
-    try{await updateDoc(ref('customers',c.id),{doNotCall:newVal});c.doNotCall=newVal;toast(newVal?'架電禁止に設定しました':'架電禁止を解除しました');render();}
+    try{
+      const patch={doNotCall:newVal};
+      if(newVal)patch.status='架電NG';
+      await updateDoc(ref('customers',c.id),patch);Object.assign(c,patch);
+      toast(newVal?'架電禁止に設定しました':'架電禁止を解除しました');render();
+    }
     catch(e){alert('更新に失敗しました: '+e.message);}
   };
   const elDelC=document.getElementById('del-c');
@@ -1750,15 +1755,13 @@ function bDetail() {
     try{
       const r=await addDoc(col('callHistory'),data);st.calls.push({id:r.id,...data});
       // ステータス自動連動
-      const RESULT_STATUS_MAP={'アポ獲得':'アポ獲得','資料送付':'ナーチャリング','担当者NG':'架電NG','受付NG':'架電NG'};
+      const RESULT_STATUS_MAP={'アポ獲得':'アポ獲得','受付NG':'ナーチャリング','担当者不在':'ナーチャリング','担当者NG':'ナーチャリング','資料送付':'ナーチャリング'};
       const suggestStatus=RESULT_STATUS_MAP[data.result];
       if(suggestStatus&&c.status!==suggestStatus){
         if(confirm(`架電結果「${data.result}」に対してステータスを「${suggestStatus}」に変更しますか？`)){
           await updateDoc(ref('customers',c.id),{status:suggestStatus});c.status=suggestStatus;
         }
-      } else if(data.result==='アポ獲得'&&(c.status==='未架電'||c.status==='架電済')){
-        await updateDoc(ref('customers',c.id),{status:'アポ獲得'});c.status='アポ獲得';
-      } else if(c.status==='未架電'){
+      } else if(!suggestStatus&&c.status==='未架電'){
         await updateDoc(ref('customers',c.id),{status:'架電済'});c.status='架電済';
       }
       showCallF=false;toast('架電記録を保存しました');render();
@@ -1805,7 +1808,7 @@ function bDetail() {
     }
     await updateDoc(ref('deals',deal.id),patch);
     Object.assign(deal,patch);
-    const customerStatusMap={初回商談:'初回商談',要件確認:'初回商談',提案:'提案中',見積提示:'提案中',条件調整:'検討中',稟議中:'検討中',受注:'受注',失注:'失注',保留:'ナーチャリング'};
+    const customerStatusMap={初回商談:'初回商談',要件確認:'提案中',提案:'提案中',見積提示:'提案中',条件調整:'検討中',稟議中:'検討中',保留:'検討中',受注:'受注',失注:'失注'};
     const nextCustomerStatus=latest&&customerStatusMap[latest.status];
     if(nextCustomerStatus&&c.status!==nextCustomerStatus){
       await updateDoc(ref('customers',c.id),{status:nextCustomerStatus});
@@ -1888,6 +1891,14 @@ function bDetail() {
         const r=await addDoc(col('deals'),data);
         st.deals.push({id:r.id,...data});
         toast('案件を追加しました');
+      }
+      // ステータス自動連動（案件ステータス→顧客ステータス）
+      const DEAL_CUSTOMER_STATUS_MAP={'契約済':'受注','失注':'失注'};
+      const suggestStatus=DEAL_CUSTOMER_STATUS_MAP[data.status];
+      if(suggestStatus&&c.status!==suggestStatus){
+        if(confirm(`案件ステータス「${data.status}」に対して顧客ステータスを「${suggestStatus}」に変更しますか？`)){
+          await updateDoc(ref('customers',c.id),{status:suggestStatus});c.status=suggestStatus;
+        }
       }
       showDealForm=false;render();
     }catch(e){alert('保存に失敗しました: '+e.message);}
