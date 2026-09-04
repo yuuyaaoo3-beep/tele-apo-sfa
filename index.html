@@ -38,6 +38,10 @@
   input, select, textarea { font-family: inherit; font-size: 13px; border: 1px solid var(--c-border); border-radius: var(--radius); padding: 8px 10px; width: 100%; background: var(--c-bg); color: var(--c-text); }
   input:focus, select:focus, textarea:focus { outline: none; border-color: var(--c-blue); box-shadow: 0 0 0 3px rgba(26,115,232,.12); }
   label { font-size: 12px; color: var(--c-text2); display: block; margin-bottom: 4px; }
+  .help-tip { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 15px; height: 15px; border-radius: 50%; background: var(--c-text3); color: #fff; font-size: 10px; font-weight: 700; margin-left: 4px; cursor: help; vertical-align: middle; }
+  .help-tip .tip-box { display: none; position: absolute; left: 20px; top: -6px; width: 260px; background: #202124; color: #fff; font-size: 11.5px; font-weight: 400; line-height: 1.7; padding: 10px 12px; border-radius: 8px; box-shadow: 0 4px 16px rgba(0,0,0,.25); z-index: 50; text-align: left; }
+  .help-tip:hover .tip-box { display: block; }
+  .tip-box b { color: #8ab4f8; }
   .fg2 { display: grid; grid-template-columns: repeat(auto-fit,minmax(200px,1fr)); gap: 12px; }
   .fa { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
   .card { background: var(--c-bg); border: 1px solid var(--c-border); border-radius: var(--radius-lg); padding: 20px; margin-bottom: 16px; }
@@ -290,6 +294,20 @@ const col = n => collection(db, n);
 const ref = (n, id) => doc(db, n, id);
 
 const CALL_RESULTS = ['未通電','不通','受付NG','担当者不在','担当者NG','資料送付','アポ獲得','対象外'];
+const CALL_RESULT_DESC = {
+  '未通電': '電話がそもそも繋がらない（不良番号・解約等）',
+  '不通': '呼び出し音は鳴るが応答なし',
+  '受付NG': '受付の人に断られた（取り次いでもらえなかった）',
+  '担当者不在': '受付は取り次ぐ意思があったが、タイミングが合わず話せなかった',
+  '担当者NG': '担当者と話せたが、その場で断られた',
+  '資料送付': '担当者と話せて、資料送付を依頼された',
+  'アポ獲得': '担当者と話せて、アポイントを獲得できた',
+  '対象外': 'そもそもターゲットとする企業ではなかった',
+};
+function callResultHelpHtml() {
+  const rows = CALL_RESULTS.map(r => `<b>${esc(r)}</b>：${esc(CALL_RESULT_DESC[r]||'')}`).join('<br>');
+  return `<span class="help-tip">?<span class="tip-box">${rows}</span></span>`;
+}
 const STATUSES = ['未架電','架電済','架電NG','ナーチャリング','アポ獲得','初回商談','提案中','検討中','受注','失注'];
 const RANKS = ['A','B','C','D'];
 
@@ -1539,7 +1557,7 @@ function rCallForm() {
   <div style="font-size:14px;font-weight:600;margin-bottom:12px">架電記録を追加</div>
   <div class="fg2">
     <div><label>架電日時</label><input type="datetime-local" id="h-dt" value="${iso}"></div>
-    <div><label>架電結果</label><select id="h-res">${CALL_RESULTS.map(r=>`<option>${r}</option>`).join('')}</select></div>
+    <div><label>架電結果${callResultHelpHtml()}</label><select id="h-res">${CALL_RESULTS.map(r=>`<option>${r}</option>`).join('')}</select></div>
   </div>
   <div style="margin:10px 0"><label>通話内容メモ</label><textarea id="h-memo" rows="3"></textarea></div>
   <div class="fg2">
@@ -1555,7 +1573,7 @@ function rCallEditForm(h) {
   <div style="font-size:14px;font-weight:600;margin-bottom:12px">架電記録を編集</div>
   <div class="fg2">
     <div><label>架電日時</label><input type="datetime-local" id="he-dt" value="${esc(fmt(h.calledAt))}"></div>
-    <div><label>架電結果</label><select id="he-res">${CALL_RESULTS.map(r=>`<option${h.result===r?' selected':''}>${r}</option>`).join('')}</select></div>
+    <div><label>架電結果${callResultHelpHtml()}</label><select id="he-res">${CALL_RESULTS.map(r=>`<option${h.result===r?' selected':''}>${r}</option>`).join('')}</select></div>
   </div>
   <div style="margin:10px 0"><label>通話内容メモ</label><textarea id="he-memo" rows="3">${esc(h.memo||'')}</textarea></div>
   <div class="fg2">
